@@ -5,6 +5,8 @@ import DashProfile from '../components/DashProfile';
 import DashSettings from '../components/DashSettings';
 import DashHome from '../components/DashHome';
 import DashStudents from '../components/DashStudents'
+import DashFinance from '../components/DashFinance';
+import DashAcademy from '../components/DashAcademy';
 export default function Dashboard() {
   const location = useLocation();
   const [tab, setTab] = useState('');
@@ -25,6 +27,8 @@ export default function Dashboard() {
       {tab === 'profile' && <DashProfile />}
       {tab === 'settings' && <DashSettings />}
       {tab === 'students' && <DashStudents />}
+      {tab === 'finance' && <DashFinance />}
+      {tab === 'academy' && <DashAcademy />}
     </div>
   );
 }

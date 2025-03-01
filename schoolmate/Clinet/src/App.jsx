@@ -8,6 +8,10 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ThemeLayout from "./components/ThemeLayout";
 import PrivateRoute from "./components/PrivateRoute";
+import AdminFinance from "./pages/AdminFinance";
+import AdminAcademy from "./pages/AdminAcademy";
+import AdminStudent from "./pages/AdminStudent";
+
 
 export default function App() {
   return (
@@ -22,6 +26,9 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin-finance" element={<AdminFinance />} />
+          <Route path="/admin-academy" element={<AdminAcademy />} />
+          <Route path="/admin-student" element={<AdminStudent />} />
           </Route> 
           
         </Routes>
