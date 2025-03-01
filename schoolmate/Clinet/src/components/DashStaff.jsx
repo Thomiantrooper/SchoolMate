@@ -1,21 +1,20 @@
 import { useState, useContext } from "react";
 import { ThemeContext } from "./ThemeLayout"; 
-
-const DashAcademy = () => {
+const DashStaff = () => {
   const { darkMode } = useContext(ThemeContext); 
-  const [updates, setUpdates] = useState([
-    { id: 1, title: "New Course Added", description: "Machine Learning Basics course is now available.", date: "2025-03-01" },
-    { id: 2, title: "Exam Schedule Released", description: "Midterm exam schedule has been updated.", date: "2025-02-28" }
+  const [announcements, setAnnouncements] = useState([
+    { id: 1, title: "New Staff Meeting", description: "Monthly staff meeting scheduled for March 5th.", date: "2025-03-01" },
+    { id: 2, title: "Policy Update", description: "New HR policies have been updated in the portal.", date: "2025-02-28" }
   ]);
-  const [newUpdate, setNewUpdate] = useState("");
+  const [newAnnouncement, setNewAnnouncement] = useState("");
 
-  const handleAddUpdate = () => {
-    if (newUpdate.trim() !== "") {
-      setUpdates([
-        ...updates,
-        { id: updates.length + 1, title: "New Update", description: newUpdate, date: new Date().toISOString().split('T')[0] }
+  const handleAddAnnouncement = () => {
+    if (newAnnouncement.trim() !== "") {
+      setAnnouncements([
+        ...announcements,
+        { id: announcements.length + 1, title: "New Announcement", description: newAnnouncement, date: new Date().toISOString().split('T')[0] }
       ]);
-      setNewUpdate("");
+      setNewAnnouncement("");
     }
   };
 
@@ -27,9 +26,9 @@ const DashAcademy = () => {
       <div className={`w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md mb-6 transition-all duration-300 ${
         darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
       }`}>
-        <h1 className="text-2xl font-bold">📚 Academic Dashboard</h1>
+        <h1 className="text-2xl font-bold">🧑‍🏫 Staff Dashboard</h1>
         <button
-          onClick={() => window.location.href = "/admin-academy"}
+          onClick={() => window.location.href = "/admin-staff"}
           className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
         >
           Go to Admin Panel
@@ -41,51 +40,51 @@ const DashAcademy = () => {
         <div className={`p-4 rounded-lg shadow-md transition-all duration-300 ${
           darkMode ? "bg-green-800 text-white" : "bg-green-100 text-green-700"
         }`}>
-          <h3 className="text-lg font-semibold">Total Courses</h3>
-          <p className="text-2xl font-bold">24</p>
+          <h3 className="text-lg font-semibold">Total Staff</h3>
+          <p className="text-2xl font-bold">45</p>
         </div>
         <div className={`p-4 rounded-lg shadow-md transition-all duration-300 ${
           darkMode ? "bg-red-800 text-white" : "bg-red-100 text-red-700"
         }`}>
-          <h3 className="text-lg font-semibold">Pending Approvals</h3>
-          <p className="text-2xl font-bold">5</p>
+          <h3 className="text-lg font-semibold">Pending Requests</h3>
+          <p className="text-2xl font-bold">3</p>
         </div>
         <div className={`p-4 rounded-lg shadow-md transition-all duration-300 ${
           darkMode ? "bg-blue-800 text-white" : "bg-blue-100 text-blue-700"
         }`}>
           <h3 className="text-lg font-semibold">Total Announcements</h3>
-          <p className="text-2xl font-bold">18</p>
+          <p className="text-2xl font-bold">{announcements.length}</p>
         </div>
       </div>
 
-      {/* Create New Update */}
+      {/* Create New Announcement */}
       <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md mb-6 transition-all duration-300 ${
         darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
       }`}>
-        <h2 className="text-lg font-semibold mb-2">Create New Academic Update</h2>
+        <h2 className="text-lg font-semibold mb-2">Create New Staff Announcement</h2>
         <textarea
           className={`w-full p-2 border rounded mb-2 transition-all duration-300 ${
             darkMode ? "bg-gray-700 border-gray-600 text-white" : "border-gray-300"
           }`}
-          placeholder="Enter new update..."
-          value={newUpdate}
-          onChange={(e) => setNewUpdate(e.target.value)}
+          placeholder="Enter new announcement..."
+          value={newAnnouncement}
+          onChange={(e) => setNewAnnouncement(e.target.value)}
         />
         <button
-          onClick={handleAddUpdate}
+          onClick={handleAddAnnouncement}
           className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded w-full"
         >
-          Post Update
+          Post Announcement
         </button>
       </div>
 
-      {/* Display Updates */}
+      {/* Display Announcements */}
       <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md transition-all duration-300 ${
         darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
       }`}>
-        <h2 className="text-lg font-semibold mb-2">Recent Academic Updates</h2>
-        {updates.length === 0 ? (
-          <p className="text-gray-500">No updates yet.</p>
+        <h2 className="text-lg font-semibold mb-2">Recent Staff Announcements</h2>
+        {announcements.length === 0 ? (
+          <p className="text-gray-500">No announcements yet.</p>
         ) : (
           <table className="w-full border-collapse shadow-md">
             <thead>
@@ -98,13 +97,13 @@ const DashAcademy = () => {
               </tr>
             </thead>
             <tbody>
-              {updates.map((update) => (
-                <tr key={update.id} className={`border-b transition-all duration-300 ${
+              {announcements.map((announcement) => (
+                <tr key={announcement.id} className={`border-b transition-all duration-300 ${
                   darkMode ? "border-gray-600" : "border-gray-300"
                 }`}>
-                  <td className="p-2 font-semibold">{update.title}</td>
-                  <td className="p-2">{update.description}</td>
-                  <td className="p-2 text-gray-600">{update.date}</td>
+                  <td className="p-2 font-semibold">{announcement.title}</td>
+                  <td className="p-2">{announcement.description}</td>
+                  <td className="p-2 text-gray-600">{announcement.date}</td>
                 </tr>
               ))}
             </tbody>
@@ -115,4 +114,4 @@ const DashAcademy = () => {
   );
 };
 
-export default DashAcademy;
+export default DashStaff;

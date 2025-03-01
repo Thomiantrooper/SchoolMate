@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { ThemeContext } from "../components/ThemeLayout"; 
 
 export default function AdminAcademy() {
+  const { darkMode } = useContext(ThemeContext);
   const [courses, setCourses] = useState([
     { id: 1, title: "React for Beginners", instructor: "John Doe", date: "2025-02-20" },
     { id: 2, title: "Node.js Masterclass", instructor: "Jane Smith", date: "2025-02-18" },
@@ -27,10 +29,14 @@ export default function AdminAcademy() {
   };
 
   return (
-    <div className="bg-gray-100 text-gray-900 p-6 flex flex-col items-center w-full min-h-screen">
+    <div className={`p-6 flex flex-col items-center w-full min-h-screen transition-all duration-300 ${
+      darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+    }`}>
       
       {/* Header */}
-      <div className="w-full max-w-6xl flex justify-between items-center bg-white p-4 rounded-lg shadow-md mb-6">
+      <div className={`w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md mb-6 transition-all duration-300 ${
+        darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+      }`}>
         <h1 className="text-2xl font-bold">📚 Admin Academy Panel</h1>
         <button 
           onClick={() => window.location.href = "/dashboard?tab=academy"} 
@@ -40,7 +46,9 @@ export default function AdminAcademy() {
       </div>
 
       {/* Add Course Form */}
-      <div className="w-full max-w-6xl bg-white p-4 rounded-lg shadow-md mb-6">
+      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md mb-6 transition-all duration-300 ${
+        darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+      }`}>
         <h2 className="text-lg font-semibold mb-3">➕ Add New Course</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input 
@@ -48,20 +56,20 @@ export default function AdminAcademy() {
             placeholder="Course Title" 
             value={newCourse.title} 
             onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
-            className="border p-2 rounded"
+            className={`border p-2 rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900"}`}
           />
           <input 
             type="text" 
             placeholder="Instructor Name" 
             value={newCourse.instructor} 
             onChange={(e) => setNewCourse({ ...newCourse, instructor: e.target.value })}
-            className="border p-2 rounded"
+            className={`border p-2 rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900"}`}
           />
           <input 
             type="date" 
             value={newCourse.date} 
             onChange={(e) => setNewCourse({ ...newCourse, date: e.target.value })}
-            className="border p-2 rounded"
+            className={`border p-2 rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900"}`}
           />
         </div>
         <button 
@@ -72,11 +80,13 @@ export default function AdminAcademy() {
       </div>
 
       {/* Courses Table */}
-      <div className="w-full max-w-6xl bg-white p-4 rounded-lg shadow-md">
+      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md transition-all duration-300 ${
+        darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+      }`}>
         <h2 className="text-lg font-semibold mb-2">📋 Manage Courses</h2>
         <table className="w-full border-collapse shadow-md">
           <thead>
-            <tr className="bg-gray-200 text-left">
+            <tr className={`${darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-900"}`}>
               <th className="p-2">Title</th>
               <th className="p-2">Instructor</th>
               <th className="p-2">Start Date</th>
@@ -85,7 +95,7 @@ export default function AdminAcademy() {
           </thead>
           <tbody>
             {courses.map((course) => (
-              <tr key={course.id} className="border-b">
+              <tr key={course.id} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
                 <td className="p-2 font-semibold">{course.title}</td>
                 <td className="p-2">{course.instructor}</td>
                 <td className="p-2">{course.date}</td>
