@@ -12,83 +12,59 @@ export default function FinanceDashboard() {
   const totalExpenses = transactions.filter(t => t.type === "expense").reduce((acc, t) => acc + t.amount, 0);
   const balance = totalRevenue - totalExpenses;
 
-  // Inline styles for the page layout
-  const cardStyle = {
-    padding: '1rem',
-    borderRadius: '0.5rem',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-    marginBottom: '1rem',
-  };
-  
-  const cardContentStyle = {
-    padding: '1rem',
-  };
-
-  const tableStyle = {
-    width: '100%',
-    borderCollapse: 'collapse',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-  };
-
-  const tableHeaderStyle = {
-    backgroundColor: '#f3f4f6',
-    textAlign: 'left',
-    padding: '0.5rem',
-  };
-
-  const tableCellStyle = {
-    borderBottom: '1px solid #ddd',
-    padding: '0.5rem',
-  };
-
   return (
-    <div style={{ padding: '1.5rem' }}>
+    <div className="bg-gray-100 text-gray-900 p-6 flex flex-col items-center w-full min-h-[80vh]">
+      
+      {/* Header */}
+      <div className="w-full max-w-6xl flex justify-between items-center bg-white p-4 rounded-lg shadow-md mb-6">
+        <h1 className="text-2xl font-bold">💰 Finance Dashboard</h1>
+        <button 
+          onClick={() => window.location.href = "/admin-finance"} 
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded">
+          Go to Admin Panel
+        </button>
+      </div>
+
       {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-        {/* Total Revenue Card */}
-        <div style={{ ...cardStyle, backgroundColor: '#D1F8D1' }}>
-          <div style={cardContentStyle}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#4CAF50' }}>Total Revenue</h3>
-            <p style={{ fontSize: '2rem', fontWeight: '700' }}>${totalRevenue}</p>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-6xl mb-6">
+        {/* Total Revenue */}
+        <div className="bg-green-100 p-4 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-green-700">Total Revenue</h3>
+          <p className="text-2xl font-bold">${totalRevenue}</p>
         </div>
 
-        {/* Total Expenses Card */}
-        <div style={{ ...cardStyle, backgroundColor: '#F8D1D1' }}>
-          <div style={cardContentStyle}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#F44336' }}>Total Expenses</h3>
-            <p style={{ fontSize: '2rem', fontWeight: '700' }}>${totalExpenses}</p>
-          </div>
+        {/* Total Expenses */}
+        <div className="bg-red-100 p-4 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-red-700">Total Expenses</h3>
+          <p className="text-2xl font-bold">${totalExpenses}</p>
         </div>
 
-        {/* Balance Card */}
-        <div style={{ ...cardStyle, backgroundColor: '#D1E8F8' }}>
-          <div style={cardContentStyle}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2196F3' }}>Balance</h3>
-            <p style={{ fontSize: '2rem', fontWeight: '700' }}>${balance}</p>
-          </div>
+        {/* Balance */}
+        <div className="bg-blue-100 p-4 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-blue-700">Balance</h3>
+          <p className="text-2xl font-bold">${balance}</p>
         </div>
       </div>
 
       {/* Transactions Table */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '0.5rem', padding: '1rem', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Recent Transactions</h3>
-        <table style={tableStyle}>
+      <div className="w-full max-w-6xl bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-lg font-semibold mb-2">Recent Transactions</h2>
+        <table className="w-full border-collapse shadow-md">
           <thead>
-            <tr>
-              <th style={tableHeaderStyle}>Name</th>
-              <th style={tableHeaderStyle}>Amount</th>
-              <th style={tableHeaderStyle}>Date</th>
-              <th style={tableHeaderStyle}>Type</th>
+            <tr className="bg-gray-200 text-left">
+              <th className="p-2">Name</th>
+              <th className="p-2">Amount</th>
+              <th className="p-2">Date</th>
+              <th className="p-2">Type</th>
             </tr>
           </thead>
           <tbody>
             {transactions.map((t) => (
-              <tr key={t.id}>
-                <td style={tableCellStyle}>{t.name}</td>
-                <td style={tableCellStyle}>${t.amount}</td>
-                <td style={tableCellStyle}>{t.date}</td>
-                <td style={{ ...tableCellStyle, color: t.type === "income" ? '#4CAF50' : '#F44336' }}>
+              <tr key={t.id} className="border-b">
+                <td className="p-2 font-semibold">{t.name}</td>
+                <td className="p-2">${t.amount}</td>
+                <td className="p-2">{t.date}</td>
+                <td className={`p-2 ${t.type === "income" ? "text-green-600" : "text-red-600"}`}>
                   {t.type.charAt(0).toUpperCase() + t.type.slice(1)}
                 </td>
               </tr>
@@ -96,6 +72,7 @@ export default function FinanceDashboard() {
           </tbody>
         </table>
       </div>
+
     </div>
   );
 }
