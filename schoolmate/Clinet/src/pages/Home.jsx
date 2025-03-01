@@ -1,70 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
-export default function SchoolHomePage() {
-  const [announcements, setAnnouncements] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function SchoolHomeAnimation() {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    fetch('/api/school-data')
-      .then((response) => response.json())
-      .then((data) => {
-        setAnnouncements(data.announcements);
-        setEvents(data.events);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching school data:', error);
-        setError('Failed to load school data.');
-        setLoading(false);
-      });
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const stars = [];
+
+    class Star {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3;
+        this.speed = Math.random() * 2;
+      }
+      draw() {
+        ctx.fillStyle = "rgba(255, 215, 0, 0.8)";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height) {
+          this.y = 0;
+          this.x = Math.random() * canvas.width;
+        }
+        this.draw();
+      }
+    }
+
+    function init() {
+      for (let i = 0; i < 100; i++) {
+        stars.push(new Star());
+      }
+    }
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach((star) => star.update());
+      requestAnimationFrame(animate);
+    }
+    init();
+    animate();
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
   }, []);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Welcome to Our School</h1>
-      
-      {loading && <p className="text-center">Loading...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
-
-      {/* Announcements Section */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Latest Announcements</h2>
-        <ul className="list-disc pl-5">
-          {announcements.length > 0 ? (
-            announcements.map((announcement, index) => (
-              <li key={index} className="mb-1">{announcement}</li>
-            ))
-          ) : (
-            <p>No announcements at the moment.</p>
-          )}
-        </ul>
-      </div>
-
-      {/* Subjects Section */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Subjects Offered</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {["Mathematics", "Science", "History", "English", "Computer Science", "Physical Education"].map((subject, index) => (
-            <div key={index} className="bg-blue-200 p-4 rounded-lg text-center shadow-md">{subject}</div>
-          ))}
-        </div>
-      </div>
-
-      {/* Upcoming Events Section */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-2">Upcoming Events</h2>
-        <ul className="list-disc pl-5">
-          {events.length > 0 ? (
-            events.map((event, index) => (
-              <li key={index} className="mb-1">{event}</li>
-            ))
-          ) : (
-            <p>No upcoming events.</p>
-          )}
-        </ul>
-      </div>
+    <div className="relative h-screen w-screen overflow-hidden">
+      <canvas ref={canvasRef} className="absolute top-0 left-0" />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2 }}
+        className="absolute inset-0 flex flex-col items-center justify-center text-white font-bold"
+      >
+        <motion.h1
+          className="text-6xl mb-4"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ repeat: Infinity, duration: 3 }}
+        >
+          School Management System
+        </motion.h1>
+        <motion.p
+          className="text-xl"
+          animate={{ y: [-10, 10, -10] }}
+          transition={{ repeat: Infinity, duration: 4 }}
+        >
+          A Nostalgic and Innovative Experience
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

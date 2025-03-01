@@ -4,6 +4,7 @@ import DashSidebar from '../components/DashSidebar';
 import DashProfile from '../components/DashProfile';
 import DashSettings from '../components/DashSettings';
 import DashHome from '../components/DashHome';
+import DashStudents from '../components/DashStudents'
 export default function Dashboard() {
   const location = useLocation();
   const [tab, setTab] = useState('');
@@ -23,6 +24,7 @@ export default function Dashboard() {
       {tab === 'home' && <DashHome />}
       {tab === 'profile' && <DashProfile />}
       {tab === 'settings' && <DashSettings />}
+      {tab === 'students' && <DashStudents />}
     </div>
   );
 }
