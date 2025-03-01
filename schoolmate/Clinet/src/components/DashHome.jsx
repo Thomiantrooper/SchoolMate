@@ -1,155 +1,142 @@
-import { useState, useEffect } from 'react';
-import { Button, TextInput, Table } from 'flowbite-react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useState, useContext } from "react";
+import { Button, Modal, TextInput, Label } from "flowbite-react";
+import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { db, collection, addDoc } from "../pages/firebaseConfig";
+import { ThemeContext } from "./ThemeLayout"; 
 
 export default function DashHome() {
   const dispatch = useDispatch();
-  const { currentUser } = useSelector((state) => state.user);
+  const { darkMode } = useContext(ThemeContext); 
 
-  const [students, setStudents] = useState([]);
-  const [newStudent, setNewStudent] = useState({ name: '', age: '', grade: '', section: '' });
-  const [editStudent, setEditStudent] = useState({ name: '', age: '', grade: '', section: '' });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentSlider, setCurrentSlider] = useState(0);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newStudent, setNewStudent] = useState({ name: "", age: "", grade: "", section: "" });
+  const [image, setImage] = useState(null);
 
-  useEffect(() => {
-    const savedStudents = localStorage.getItem('students');
-    if (savedStudents) {
-      setStudents(JSON.parse(savedStudents));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('students', JSON.stringify(students));
-  }, [students]);
-
-  const handleInputChange = (e) => {
-    setNewStudent({ ...newStudent, [e.target.name]: e.target.value });
+  // Open & Close Modal
+  const openAddModal = () => setIsAddModalOpen(true);
+  const closeAddModal = () => {
+    setIsAddModalOpen(false);
+    setNewStudent({ name: "", age: "", grade: "", section: "" });
+    setImage(null);
   };
 
-  const handleEditChange = (e) => {
-    setEditStudent({ ...editStudent, [e.target.name]: e.target.value });
-  };
-
-  const addStudent = (e) => {
-    e.preventDefault();
-    if (newStudent.name && newStudent.age && newStudent.grade && newStudent.section) {
-      setIsLoading(true);
-      setTimeout(() => {
-        setStudents([...students, newStudent]);
-        setNewStudent({ name: '', age: '', grade: '', section: '' });
-        setIsLoading(false);
-      }, 500);
-    } else {
-      alert('Please enter valid student details.');
+  // Handle Image Upload
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => setImage(event.target.result);
+      reader.readAsDataURL(file);
     }
   };
 
-  const updateStudent = () => {
-    if (students.length > 0) {
-      const updatedStudents = [...students];
-      updatedStudents[students.length - 1] = editStudent;
-      setStudents(updatedStudents);
-      setEditStudent({ name: '', age: '', grade: '', section: '' });
-      alert('Student record updated successfully!');
+  // Add Student to Firestore
+  const handleAddStudent = async () => {
+    if (!newStudent.name || !newStudent.age || !newStudent.grade || !newStudent.section) {
+      alert("All fields are required!");
+      return;
     }
-  };
 
-  const handleDelete = (index) => {
-    const updatedStudents = students.filter((_, i) => i !== index);
-    setStudents(updatedStudents);
-  };
-
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleLogout = () => {
-    localStorage.removeItem('students');
-    dispatch({ type: 'LOGOUT' });
+    await addDoc(collection(db, "students"), { ...newStudent });
+    alert("Student added successfully!");
+    closeAddModal();
   };
 
   return (
-    <div className='max-w-4xl mx-auto p-5 w-full bg-white rounded-lg shadow-lg'>
-      <h1 className='my-7 text-center font-semibold text-3xl text-gray-800'>School Management Dashboard</h1>
-      
-      <div className='flex justify-between'>
-        <Button onClick={() => setCurrentSlider(0)}>Add Student</Button>
-        <Button onClick={() => setCurrentSlider(1)}>Update Student</Button>
-        <Button onClick={() => setCurrentSlider(2)}>Delete Student</Button>
+    <motion.div
+      className={`max-w-6xl mx-auto p-6 w-full rounded-lg shadow-lg ${
+        darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"
+      }`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
+      {/* Header */}
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-semibold">Welcome to the School Dashboard</h1>
+        <p className="mt-2">{darkMode ? "Dark Mode Enabled" : "Light Mode Enabled"}</p>
       </div>
-      
-      {currentSlider === 0 && (
-        <form className='flex flex-col gap-4 my-5' onSubmit={addStudent}>
-          <TextInput type='text' name='name' placeholder='Student Name' value={newStudent.name} onChange={handleInputChange} />
-          <TextInput type='number' name='age' placeholder='Age' value={newStudent.age} onChange={handleInputChange} />
-          <TextInput type='text' name='grade' placeholder='Grade' value={newStudent.grade} onChange={handleInputChange} />
-          <TextInput type='text' name='section' placeholder='Section' value={newStudent.section} onChange={handleInputChange} />
-          <Button type='submit' disabled={isLoading}>{isLoading ? 'Adding...' : 'Add Student'}</Button>
-        </form>
-      )}
-      
-      {currentSlider === 1 && students.length > 0 && (
-        <form className='flex flex-col gap-4 my-5' onSubmit={(e) => { e.preventDefault(); updateStudent(); }}>
-          <TextInput type='text' name='name' placeholder='Student Name' value={editStudent.name} onChange={handleEditChange} />
-          <TextInput type='number' name='age' placeholder='Age' value={editStudent.age} onChange={handleEditChange} />
-          <TextInput type='text' name='grade' placeholder='Grade' value={editStudent.grade} onChange={handleEditChange} />
-          <TextInput type='text' name='section' placeholder='Section' value={editStudent.section} onChange={handleEditChange} />
-          <Button type='submit'>Update Student</Button>
-        </form>
-      )}
-      
-      {currentSlider === 2 && (
-        <Table>
-          <Table.Head>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell>Age</Table.HeadCell>
-            <Table.HeadCell>Grade</Table.HeadCell>
-            <Table.HeadCell>Section</Table.HeadCell>
-            <Table.HeadCell>Actions</Table.HeadCell>
-          </Table.Head>
-          <Table.Body>
-            {filteredStudents.map((student, index) => (
-              <Table.Row key={index}>
-                <Table.Cell>{student.name}</Table.Cell>
-                <Table.Cell>{student.age}</Table.Cell>
-                <Table.Cell>{student.grade}</Table.Cell>
-                <Table.Cell>{student.section}</Table.Cell>
-                <Table.Cell>
-                  <Button onClick={() => handleDelete(index)}>Delete</Button>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      )}
-      
-      <div className='mt-6'>
-        <h2 className='text-center text-2xl font-semibold text-gray-700 mb-4'>Student Records</h2>
-        <Table>
-          <Table.Head>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell>Age</Table.HeadCell>
-            <Table.HeadCell>Grade</Table.HeadCell>
-            <Table.HeadCell>Section</Table.HeadCell>
-          </Table.Head>
-          <Table.Body>
-            {students.map((student, index) => (
-              <Table.Row key={index}>
-                <Table.Cell>{student.name}</Table.Cell>
-                <Table.Cell>{student.age}</Table.Cell>
-                <Table.Cell>{student.grade}</Table.Cell>
-                <Table.Cell>{student.section}</Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+
+      {/* Hero Section */}
+      <motion.div
+        className={`p-8 rounded-lg text-center shadow-lg ${
+          darkMode ? "bg-gray-800 text-white" : "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+        }`}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-4xl font-bold">Manage Students with Ease</h2>
+        <p className="mt-2 text-lg">Add, edit, and track student details efficiently.</p>
+      </motion.div>
+
+      {/* Feature Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-700 text-white" : "bg-blue-600 text-white"}`}>
+          <h3 className="text-xl font-semibold">📋 Manage Students</h3>
+          <p className="mt-2">Easily add, edit, and remove student records.</p>
+        </motion.div>
+
+        <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-600 text-white" : "bg-green-600 text-white"}`}>
+          <h3 className="text-xl font-semibold">📖 View Student Details</h3>
+          <p className="mt-2">Quickly find and access student profiles.</p>
+        </motion.div>
+
+        <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-500 text-white" : "bg-yellow-500 text-gray-900"}`}>
+          <h3 className="text-xl font-semibold">🔄 Track Attendance</h3>
+          <p className="mt-2">Monitor student attendance in real-time.</p>
+        </motion.div>
       </div>
-      
-      <div className='mt-4 text-center'>
-        <Button onClick={handleLogout}>Logout</Button>
+
+      {/* Add Student Button */}
+      <div className="mt-8 flex justify-center">
+        <motion.div whileHover={{ scale: 1.1 }}>
+          <Button onClick={openAddModal} gradientDuoTone="greenToBlue">
+            Add Student
+          </Button>
+        </motion.div>
       </div>
-    </div>
+
+      {/* Add Student Modal */}
+      <Modal show={isAddModalOpen} size="lg" onClose={closeAddModal}>
+        <Modal.Header>Add New Student</Modal.Header>
+        <Modal.Body>
+          <div className="space-y-4">
+            <Label>Name</Label>
+            <TextInput type="text" value={newStudent.name} onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })} className="w-full" />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Age</Label>
+                <TextInput type="number" value={newStudent.age} onChange={(e) => setNewStudent({ ...newStudent, age: e.target.value })} className="w-full" />
+              </div>
+              <div>
+                <Label>Grade</Label>
+                <TextInput type="text" value={newStudent.grade} onChange={(e) => setNewStudent({ ...newStudent, grade: e.target.value })} className="w-full" />
+              </div>
+            </div>
+
+            <Label>Section</Label>
+            <TextInput type="text" value={newStudent.section} onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })} className="w-full" />
+
+            <Label>Upload Student Image</Label>
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full p-2 border rounded-lg" />
+
+            {image && (
+              <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }} className="flex justify-center">
+                <img src={image} alt="Student Preview" className="mt-4 w-40 h-40 object-cover rounded-lg border" />
+              </motion.div>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <motion.div whileHover={{ scale: 1.1 }}>
+            <Button gradientDuoTone="greenToBlue" onClick={handleAddStudent}>Add Student</Button>
+          </motion.div>
+          <Button color="gray" onClick={closeAddModal}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    </motion.div>
   );
 }
