@@ -11,6 +11,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import AdminFinance from "./pages/AdminFinance";
 import AdminAcademy from "./pages/AdminAcademy";
 import AdminStudent from "./pages/AdminStudent";
+import AdminStaff from "./pages/AdminStaff";
 
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/admin-finance" element={<AdminFinance />} />
           <Route path="/admin-academy" element={<AdminAcademy />} />
           <Route path="/admin-student" element={<AdminStudent />} />
+          <Route path="/admin-staff" element={<AdminStaff />} />
           </Route> 
           
         </Routes>

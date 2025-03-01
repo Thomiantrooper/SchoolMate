@@ -1,30 +1,27 @@
-import { useEffect, useState } from 'react';
-import { Card, Button, TextInput, Modal, Label } from 'flowbite-react';
-import { BarChart, PieChart, Bar, Pie, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { motion } from 'framer-motion';
-import { useDispatch } from 'react-redux';
-import { db, collection, addDoc } from '../pages/firebaseConfig';
+import { useState, useContext } from "react";
+import { Button, Modal, TextInput, Label } from "flowbite-react";
+import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { db, collection, addDoc } from "../pages/firebaseConfig";
+import { ThemeContext } from "./ThemeLayout"; 
 
 export default function DashHome() {
   const dispatch = useDispatch();
+  const { darkMode } = useContext(ThemeContext); 
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newStudent, setNewStudent] = useState({ name: '', age: '', grade: '', section: '' });
+  const [newStudent, setNewStudent] = useState({ name: "", age: "", grade: "", section: "" });
   const [image, setImage] = useState(null);
 
-  // Logout handler
-  const handleLogout = () => {
-    dispatch({ type: 'LOGOUT' });
-  };
-
-  // Open & Close Add Modal
+  // Open & Close Modal
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => {
     setIsAddModalOpen(false);
-    setNewStudent({ name: '', age: '', grade: '', section: '' });
+    setNewStudent({ name: "", age: "", grade: "", section: "" });
     setImage(null);
   };
 
-  // Handle Image Upload (Local Storage)
+  // Handle Image Upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -41,75 +38,90 @@ export default function DashHome() {
       return;
     }
 
-    // Store details in Firestore (excluding image)
     await addDoc(collection(db, "students"), { ...newStudent });
-
-    // Show success message
     alert("Student added successfully!");
-
-    // Close Modal
     closeAddModal();
   };
 
   return (
-    <motion.div className='max-w-5xl mx-auto p-5 w-full bg-white rounded-lg shadow-lg'
+    <motion.div
+      className={`max-w-6xl mx-auto p-6 w-full rounded-lg shadow-lg ${
+        darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"
+      }`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}>
-      <h1 className='my-7 text-center font-semibold text-3xl text-gray-800'>School Analytics Dashboard</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Card>
-            <h2 className="text-xl font-semibold text-gray-700">Total Students</h2>
-            <p className="text-3xl font-bold text-blue-600">-</p>
-          </Card>
+      transition={{ duration: 1 }}
+    >
+      {/* Header */}
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-semibold">Welcome to the School Dashboard</h1>
+        <p className="mt-2">{darkMode ? "Dark Mode Enabled" : "Light Mode Enabled"}</p>
+      </div>
+
+      {/* Hero Section */}
+      <motion.div
+        className={`p-8 rounded-lg text-center shadow-lg ${
+          darkMode ? "bg-gray-800 text-white" : "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+        }`}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-4xl font-bold">Manage Students with Ease</h2>
+        <p className="mt-2 text-lg">Add, edit, and track student details efficiently.</p>
+      </motion.div>
+
+      {/* Feature Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-700 text-white" : "bg-blue-600 text-white"}`}>
+          <h3 className="text-xl font-semibold">📋 Manage Students</h3>
+          <p className="mt-2">Easily add, edit, and remove student records.</p>
         </motion.div>
 
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Card>
-            <h2 className="text-xl font-semibold text-gray-700">Average Age</h2>
-            <p className="text-3xl font-bold text-green-600">-</p>
-          </Card>
+        <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-600 text-white" : "bg-green-600 text-white"}`}>
+          <h3 className="text-xl font-semibold">📖 View Student Details</h3>
+          <p className="mt-2">Quickly find and access student profiles.</p>
+        </motion.div>
+
+        <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-500 text-white" : "bg-yellow-500 text-gray-900"}`}>
+          <h3 className="text-xl font-semibold">🔄 Track Attendance</h3>
+          <p className="mt-2">Monitor student attendance in real-time.</p>
         </motion.div>
       </div>
 
-      <div className="mt-6 flex justify-center">
+      {/* Add Student Button */}
+      <div className="mt-8 flex justify-center">
         <motion.div whileHover={{ scale: 1.1 }}>
-          <Button onClick={openAddModal} gradientDuoTone="greenToBlue">Add Student</Button>
+          <Button onClick={openAddModal} gradientDuoTone="greenToBlue">
+            Add Student
+          </Button>
         </motion.div>
       </div>
 
+      {/* Add Student Modal */}
       <Modal show={isAddModalOpen} size="lg" onClose={closeAddModal}>
         <Modal.Header>Add New Student</Modal.Header>
         <Modal.Body>
-          <div className="space-y-6">
-            <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-              <Label>Name</Label>
-              <TextInput type="text" value={newStudent.name} onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })} className="w-full p-2 border rounded-lg" />
-            </motion.div>
+          <div className="space-y-4">
+            <Label>Name</Label>
+            <TextInput type="text" value={newStudent.name} onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })} className="w-full" />
 
             <div className="grid grid-cols-2 gap-4">
-              <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <div>
                 <Label>Age</Label>
-                <TextInput type="number" value={newStudent.age} onChange={(e) => setNewStudent({ ...newStudent, age: e.target.value })} className="w-full p-2 border rounded-lg" />
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                <TextInput type="number" value={newStudent.age} onChange={(e) => setNewStudent({ ...newStudent, age: e.target.value })} className="w-full" />
+              </div>
+              <div>
                 <Label>Grade</Label>
-                <TextInput type="text" value={newStudent.grade} onChange={(e) => setNewStudent({ ...newStudent, grade: e.target.value })} className="w-full p-2 border rounded-lg" />
-              </motion.div>
+                <TextInput type="text" value={newStudent.grade} onChange={(e) => setNewStudent({ ...newStudent, grade: e.target.value })} className="w-full" />
+              </div>
             </div>
 
-            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-              <Label>Section</Label>
-              <TextInput type="text" value={newStudent.section} onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })} className="w-full p-2 border rounded-lg" />
-            </motion.div>
+            <Label>Section</Label>
+            <TextInput type="text" value={newStudent.section} onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })} className="w-full" />
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-              <Label>Upload Student Image</Label>
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full p-2 border rounded-lg" />
-            </motion.div>
+            <Label>Upload Student Image</Label>
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full p-2 border rounded-lg" />
 
             {image && (
               <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }} className="flex justify-center">
