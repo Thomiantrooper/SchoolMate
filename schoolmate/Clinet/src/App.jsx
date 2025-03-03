@@ -12,6 +12,8 @@ import AdminFinance from "./pages/AdminFinance";
 import AdminAcademy from "./pages/AdminAcademy";
 import AdminStudent from "./pages/AdminStudent";
 import AdminStaff from "./pages/AdminStaff";
+import AdminStudentFees from "./pages/AdminStudenFee";
+import AdminStaffSalary from "./pages/AdminStaffSalary";
 
 
 export default function App() {
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/admin-academy" element={<AdminAcademy />} />
           <Route path="/admin-student" element={<AdminStudent />} />
           <Route path="/admin-staff" element={<AdminStaff />} />
+          <Route path="/admin-student-fee" element={<AdminStudentFees />} />
+          <Route path="/admin-staff-salary" element={<AdminStaffSalary />} />
           </Route> 
           
         </Routes>
