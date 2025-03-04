@@ -35,6 +35,11 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    updateProfileImage: (state, action) => {
+      if (state.currentUser) {
+        state.currentUser.profilePicture = action.payload; // Update only the profile picture
+      }
+    },
     deleteUserStart: (state) => {
       state.loading = true;
       state.error = null;
@@ -51,10 +56,18 @@ const userSlice = createSlice({
   },
 });
 
-export const { signInStart, signInSuccess, signInFailure, logout, updateStart,
-  updateSuccess,
-  updateFailure,
-  deleteUserStart,
-  deleteUserSuccess,
-  deleteUserFailure, } = userSlice.actions;
+export const { 
+  signInStart, 
+  signInSuccess, 
+  signInFailure, 
+  logout, 
+  updateStart, 
+  updateSuccess, 
+  updateFailure, 
+  updateProfileImage,  
+  deleteUserStart, 
+  deleteUserSuccess, 
+  deleteUserFailure 
+} = userSlice.actions;
+
 export default userSlice.reducer;

@@ -1,8 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
+import path from "path";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
+import StudentPaymentRoute from "./routes/StudentPayment.route.js"
 import cookieParser from "cookie-parser";
 
 // Load environment variables from .env file
@@ -25,10 +28,13 @@ const app = express();
 // Middleware to parse incoming JSON
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 // API Routes
+app.use("/uploads", express.static("uploads"));
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/payments", StudentPaymentRoute);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
