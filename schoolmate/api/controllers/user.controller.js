@@ -65,4 +65,12 @@ export const updateUser = async (req, res, next) => {
     }
   };
   
+  export const getUsers = async (req, res) => {
+    try {
+      const users = await User.find(); // Assuming you are using Mongoose
+      res.status(200).json(users); // Send users as JSON response
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
   

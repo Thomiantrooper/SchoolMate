@@ -5,13 +5,13 @@ import cors from "cors";
 import path from "path";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
-import StudentPaymentRoute from "./routes/StudentPayment.route.js"
+import StudentPaymentRoute from "./routes/StudentPayment.route.js";
 import cookieParser from "cookie-parser";
+import leaveRoutes from './routes/leaveRoute.js'; 
+import LeaveRequest from "./model/LeaveRequest.js";
 
 // Load environment variables from .env file
 dotenv.config();
-
-
 
 // Connect to MongoDB
 mongoose
@@ -31,6 +31,7 @@ app.use(cookieParser());
 app.use(cors());
 
 // API Routes
+app.use('/api/leave', leaveRoutes); // Adding the leave routes
 app.use("/uploads", express.static("uploads"));
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
@@ -46,6 +47,16 @@ app.use((err, req, res, next) => {
     message,
   });
 });
+
+app.get('/api/leaveRequests', async (req, res) => {
+  try {
+    const leaveRequests = await LeaveRequest.find(); // Replace with your model name
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching leave requests" });
+  }
+});
+
 
 // Start the server
 app.listen(3000, () => {

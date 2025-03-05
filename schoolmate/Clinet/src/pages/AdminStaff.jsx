@@ -115,7 +115,7 @@ export default function AdminStaff() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             { name: "📅 Teacher Scheduler", path: "/teacher-scheduler" },
-            { name: "📝 Leave Management", path: "/leave-management" },
+            { name: "📝 Leave Management", path: "/leave-request" },
             { name: "📖 LMS", path: "/lms" },
             { name: "🤖 AI Workload Balancer", path: "/ai-balancer" }
           ].map((item, index) => (

@@ -20,6 +20,7 @@ import StudentFooter from "./components/StudentFooter";
 import StudentProfile from "./pages/StudentProfile";
 import StudentPortal from "./pages/StudentPortal"; 
 import StudentPaymentPage from "./components/StudentPaymentPage"
+import LeaveRequest from "./pages/LeaveRequest"
 
 export default function App() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
                   <Route path="/admin-staff" element={<AdminStaff />} />
                   <Route path="/admin-student-fee" element={<AdminStudentFees />} />
                   <Route path="/admin-staff-salary" element={<AdminStaffSalary />} />
+                  <Route path="/leave-request" element={<LeaveRequest />} />
                 </Route> 
               </Routes>
               <Footer />
