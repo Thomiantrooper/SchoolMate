@@ -18,6 +18,18 @@ function Students() {
   return <h2>Students Page</h2>;
 }
 
+function Finance() {
+  return <h2>Finance Page</h2>;
+}
+
+function Academy() {
+  return <h2>Academy Page</h2>;
+}
+
+function Staff() {
+  return <h2>Staff Page</h2>;
+}
+
 export default function Dashboard() {
   const location = useLocation();
   const [tab, setTab] = useState('');
@@ -56,7 +68,10 @@ export default function Dashboard() {
           <SidebarButton label="🏠 Home" to="/dashboard?tab=home" active={tab === "home"} />
           <SidebarButton label="👤 Profile" to="/dashboard?tab=profile" active={tab === "profile"} />
           <SidebarButton label="⚙️ Settings" to="/dashboard?tab=settings" active={tab === "settings"} />
-          <SidebarButton label="👤👤 Students" to="/dashboard?tab=students" active={tab === "students"} />
+          <SidebarButton label="🧑‍🎓 Students" to="/dashboard?tab=students" active={tab === "students"} />
+          <SidebarButton label="💳 Finance" to="/dashboard?tab=finance" active={tab === "finance"} />
+          <SidebarButton label="🏫 Academy" to="/dashboard?tab=academy" active={tab === "academy"} />
+          <SidebarButton label="🧑‍🏫 Staff" to="/dashboard?tab=staff" active={tab === "staff"} />
         </div>
       </div>
 

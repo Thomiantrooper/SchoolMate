@@ -1,100 +1,45 @@
-import { useState } from "react";
+import { useContext } from "react";
+import { ThemeContext } from "./ThemeLayout";
 
 export default function FinanceDashboard() {
-  const [transactions, setTransactions] = useState([
-    { id: 1, name: "Salary", amount: 5000, type: "income", date: "2025-02-28" },
-    { id: 2, name: "Rent", amount: 1200, type: "expense", date: "2025-02-27" },
-    { id: 3, name: "Groceries", amount: 300, type: "expense", date: "2025-02-26" },
-    { id: 4, name: "Freelance Work", amount: 800, type: "income", date: "2025-02-25" },
-  ]);
+  const { darkMode } = useContext(ThemeContext);
 
-  const totalRevenue = transactions.filter(t => t.type === "income").reduce((acc, t) => acc + t.amount, 0);
-  const totalExpenses = transactions.filter(t => t.type === "expense").reduce((acc, t) => acc + t.amount, 0);
-  const balance = totalRevenue - totalExpenses;
-
-  // Inline styles for the page layout
-  const cardStyle = {
-    padding: '1rem',
-    borderRadius: '0.5rem',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-    marginBottom: '1rem',
-  };
-  
-  const cardContentStyle = {
-    padding: '1rem',
-  };
-
-  const tableStyle = {
-    width: '100%',
-    borderCollapse: 'collapse',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-  };
-
-  const tableHeaderStyle = {
-    backgroundColor: '#f3f4f6',
-    textAlign: 'left',
-    padding: '0.5rem',
-  };
-
-  const tableCellStyle = {
-    borderBottom: '1px solid #ddd',
-    padding: '0.5rem',
-  };
 
   return (
-    <div style={{ padding: '1.5rem' }}>
-      {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-        {/* Total Revenue Card */}
-        <div style={{ ...cardStyle, backgroundColor: '#D1F8D1' }}>
-          <div style={cardContentStyle}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#4CAF50' }}>Total Revenue</h3>
-            <p style={{ fontSize: '2rem', fontWeight: '700' }}>${totalRevenue}</p>
-          </div>
-        </div>
-
-        {/* Total Expenses Card */}
-        <div style={{ ...cardStyle, backgroundColor: '#F8D1D1' }}>
-          <div style={cardContentStyle}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#F44336' }}>Total Expenses</h3>
-            <p style={{ fontSize: '2rem', fontWeight: '700' }}>${totalExpenses}</p>
-          </div>
-        </div>
-
-        {/* Balance Card */}
-        <div style={{ ...cardStyle, backgroundColor: '#D1E8F8' }}>
-          <div style={cardContentStyle}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2196F3' }}>Balance</h3>
-            <p style={{ fontSize: '2rem', fontWeight: '700' }}>${balance}</p>
-          </div>
-        </div>
+    <div
+      className={`p-6 flex flex-col items-center w-full min-h-[80vh] transition-all duration-300 ${
+        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      {/* Header */}
+      <div
+        className={`w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md mb-6 transition-all duration-300 ${
+          darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+        }`}
+      >
+        <h1 className="text-2xl font-bold">💰 Finance Dashboard</h1>
+        <button
+          onClick={() => window.location.href = "/admin-finance"}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
+        >
+          Go to Admin Panel
+        </button>
       </div>
 
-      {/* Transactions Table */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '0.5rem', padding: '1rem', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Recent Transactions</h3>
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              <th style={tableHeaderStyle}>Name</th>
-              <th style={tableHeaderStyle}>Amount</th>
-              <th style={tableHeaderStyle}>Date</th>
-              <th style={tableHeaderStyle}>Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id}>
-                <td style={tableCellStyle}>{t.name}</td>
-                <td style={tableCellStyle}>${t.amount}</td>
-                <td style={tableCellStyle}>{t.date}</td>
-                <td style={{ ...tableCellStyle, color: t.type === "income" ? '#4CAF50' : '#F44336' }}>
-                  {t.type.charAt(0).toUpperCase() + t.type.slice(1)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Finance Options */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full max-w-6xl">
+        <button onClick={() => window.location.href = "/admin-student-fee"} className="p-4 rounded-lg shadow-md bg-green-500 hover:bg-green-600 text-white font-bold transition-all duration-300">
+          Student Fees
+        </button>
+        <button onClick={() => window.location.href = "/admin-staff-salary"} className="p-4 rounded-lg shadow-md bg-yellow-500 hover:bg-yellow-600 text-white font-bold transition-all duration-300">
+          Staff Salary
+        </button>
+        <button onClick={() => window.location.href = "/admin-maintenance"} className="p-4 rounded-lg shadow-md bg-red-500 hover:bg-red-600 text-white font-bold transition-all duration-300">
+          Maintenance
+        </button>
+        <button onClick={() => window.location.href = "/admin-income"} className="p-4 rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 text-white font-bold transition-all duration-300">
+          Income
+        </button>
       </div>
     </div>
   );

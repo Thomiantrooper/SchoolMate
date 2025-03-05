@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
-import { Button, TextInput, Alert, Modal } from 'flowbite-react'; // Make sure Modal is imported
-import { HiOutlineExclamationCircle } from 'react-icons/hi'; // Import the exclamation icon
+import { useState, useRef, useEffect } from 'react';
+import { Button, TextInput, Alert, Modal } from 'flowbite-react'; 
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/user/userSlice';
 import {
@@ -16,11 +16,22 @@ export default function DashProfile() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
 
-  const [profileImage, setProfileImage] = useState(currentUser?.profilePicture || '');
-  const fileInputRef = useRef(null); // Changed to useRef
+  
+  const storedImage = localStorage.getItem(`profileImage-${currentUser?._id}`);
+  const [profileImage, setProfileImage] = useState(storedImage || currentUser?.profilePicture || '');
+  
+  const fileInputRef = useRef(null);
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
   const [updateUserError, setUpdateUserError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({});
+
+  useEffect(() => {
+    // Update localStorage when profile image changes
+    if (profileImage) {
+      localStorage.setItem(`profileImage-${currentUser?._id}`, profileImage);
+    }
+  }, [profileImage, currentUser]);
 
   const handleSignOut = () => {
     dispatch(logout());
@@ -29,16 +40,18 @@ export default function DashProfile() {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target.result); 
+        localStorage.setItem(`profileImage-${currentUser?._id}`, e.target.result); // Save to localStorage
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleClick = () => {
     fileInputRef.current.click();
   };
-
-  const [formData, setFormData] = useState({});
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -87,13 +100,14 @@ export default function DashProfile() {
         dispatch(deleteUserFailure(data.message));
       } else {
         dispatch(deleteUserSuccess(data));
+        localStorage.removeItem(`profileImage-${currentUser._id}`); 
       }
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
     }
   };
 
-  if (!currentUser) return <div>Loading...</div>; // Ensure user data is present
+  if (!currentUser) return <div>Loading...</div>;
 
   return (
     <div className='max-w-lg mx-auto p-3 w-full'>
