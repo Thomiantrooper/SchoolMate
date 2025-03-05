@@ -19,6 +19,7 @@ import StudentHeader from "./components/StudentHeader";
 import StudentFooter from "./components/StudentFooter";
 import StudentProfile from "./pages/StudentProfile";
 import StudentPortal from "./pages/StudentPortal"; 
+import StudentPaymentPage from "./components/StudentPaymentPage"
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/student-profile" element={<StudentProfile />} /> 
                 <Route path="/student-portal" element={<StudentPortal />} /> 
+                <Route path="/payment" element={<StudentPaymentPage />} />
               </Routes>
               <StudentFooter />
             </ThemeLayout>
