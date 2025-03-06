@@ -21,6 +21,8 @@ import StudentProfile from "./pages/StudentProfile";
 import StudentPortal from "./pages/StudentPortal"; 
 import StudentPaymentPage from "./components/StudentPaymentPage"
 import LeaveRequest from "./pages/LeaveRequest"
+import StudentLMS from "./components/StudentLMS";
+import WorkloadBalancer from "./pages/WorkloadBalancer";
 
 export default function App() {
   return (
@@ -49,6 +51,8 @@ export default function App() {
                   <Route path="/admin-student-fee" element={<AdminStudentFees />} />
                   <Route path="/admin-staff-salary" element={<AdminStaffSalary />} />
                   <Route path="/leave-request" element={<LeaveRequest />} />
+                  <Route path="/lms" element={<StudentLMS />} />
+                  <Route path="/ai-workload" element={<WorkloadBalancer />} />
                 </Route> 
               </Routes>
               <Footer />

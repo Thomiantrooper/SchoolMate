@@ -3,12 +3,14 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
+import bodyParser from "body-parser";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
 import StudentPaymentRoute from "./routes/StudentPayment.route.js";
 import cookieParser from "cookie-parser";
 import leaveRoutes from './routes/leaveRoute.js'; 
 import LeaveRequest from "./model/LeaveRequest.js";
+import workloadRoutes from './routes/workload.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -29,6 +31,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
+app.use(bodyParser.json());
 
 // API Routes
 app.use('/api/leave', leaveRoutes); // Adding the leave routes
@@ -36,6 +39,9 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payments", StudentPaymentRoute);
+app.use('/api/workload', workloadRoutes);
+
+
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
