@@ -56,7 +56,7 @@ app.use((err, req, res, next) => {
 
 app.get('/api/leaveRequests', async (req, res) => {
   try {
-    const leaveRequests = await LeaveRequest.find(); // Replace with your model name
+    const leaveRequests = await LeaveRequest.find(); 
     res.status(200).json(leaveRequests);
   } catch (error) {
     res.status(500).json({ message: "Error fetching leave requests" });
