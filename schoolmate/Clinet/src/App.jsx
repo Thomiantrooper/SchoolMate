@@ -23,6 +23,9 @@ import StudentPaymentPage from "./components/StudentPaymentPage"
 import LeaveRequest from "./pages/LeaveRequest"
 import StudentLMS from "./components/StudentLMS";
 import WorkloadBalancer from "./pages/WorkloadBalancer";
+import TeacherScheduler from"./pages/TeacherScheduler";
+import Chatbot from"./pages/Chatbot";
+
 
 export default function App() {
   return (
@@ -40,6 +43,7 @@ export default function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/chat-bot" element={<Chatbot />} />
 
                 {/* Protected Routes */}
                 <Route element={<PrivateRoute />}>
@@ -53,6 +57,9 @@ export default function App() {
                   <Route path="/leave-request" element={<LeaveRequest />} />
                   <Route path="/lms" element={<StudentLMS />} />
                   <Route path="/ai-workload" element={<WorkloadBalancer />} />
+                  <Route path="/teacher-scheduler" element={<TeacherScheduler />} />
+                  
+
                 </Route> 
               </Routes>
               <Footer />
@@ -77,6 +84,7 @@ export default function App() {
           } 
         />
       </Routes>
+
     </BrowserRouter>
   );
 }
