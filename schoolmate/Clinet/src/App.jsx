@@ -18,22 +18,29 @@ import LandingPage from "./pages/LandingPage";
 import StudentHeader from "./components/StudentHeader";
 import StudentFooter from "./components/StudentFooter";
 import StudentProfile from "./pages/StudentProfile";
-import StudentPortal from "./pages/StudentPortal"; 
-import StudentPaymentPage from "./components/StudentPaymentPage"
-import LeaveRequest from "./pages/LeaveRequest"
+import StudentPortal from "./pages/StudentPortal";
+import StudentPaymentPage from "./components/StudentPaymentPage";
+import LeaveRequest from "./pages/LeaveRequest";
 import StudentLMS from "./components/StudentLMS";
 import WorkloadBalancer from "./pages/WorkloadBalancer";
-import TeacherScheduler from"./pages/TeacherScheduler";
-import Chatbot from"./pages/Chatbot";
+import TeacherScheduler from "./pages/TeacherScheduler";
+import Chatbot from "./pages/Chatbot";
 
+import StaffHeader from "./components/StaffHeader";
+import StaffFooter from "./components/StaffFooter";
+import StaffDashboard from "./pages/StaffDashboard";
+import StaffProfile from "./components/StaffProfile";
+import StaffModule from "./components/StaffModule";
+import StaffPayment from "./components/StaffPayment";
+import StaffContact from "./components/StaffContact";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Main Layout with Header & Footer */}
-        <Route 
-          path="/*" 
+        
+        <Route
+          path="/*"
           element={
             <ThemeLayout>
               <Header />
@@ -58,33 +65,48 @@ export default function App() {
                   <Route path="/lms" element={<StudentLMS />} />
                   <Route path="/ai-workload" element={<WorkloadBalancer />} />
                   <Route path="/teacher-scheduler" element={<TeacherScheduler />} />
-                  
-
-                </Route> 
+                </Route>
               </Routes>
               <Footer />
             </ThemeLayout>
-          } 
+          }
         />
 
         {/* Student Pages with Separate Header & Footer */}
-        <Route 
-          path="/student-page/*"  // Allows nested student routes
+        <Route
+          path="/student-page/*"
           element={
-            <ThemeLayout>  
+            <ThemeLayout>
               <StudentHeader />
               <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/student-profile" element={<StudentProfile />} /> 
-                <Route path="/student-portal" element={<StudentPortal />} /> 
+                <Route path="/student-profile" element={<StudentProfile />} />
+                <Route path="/student-portal" element={<StudentPortal />} />
                 <Route path="/payment" element={<StudentPaymentPage />} />
               </Routes>
               <StudentFooter />
             </ThemeLayout>
-          } 
+          }
+        />
+
+        {/* Staff Pages with Separate Header & Footer */}
+        <Route
+          path="/staff-page/*"
+          element={
+            <ThemeLayout>
+              <StaffHeader />
+              <Routes>
+                <Route path="/" element={<StaffDashboard />} />
+                <Route path="/profile" element={<StaffProfile />} />
+                <Route path="/modules" element={<StaffModule />} />
+                <Route path="/payment" element={<StaffPayment />} />
+                <Route path="/contact" element={<StaffContact />} />
+              </Routes>
+              <StaffFooter />
+            </ThemeLayout>
+          }
         />
       </Routes>
-
     </BrowserRouter>
   );
 }
