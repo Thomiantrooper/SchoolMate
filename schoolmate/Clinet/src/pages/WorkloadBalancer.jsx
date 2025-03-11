@@ -95,9 +95,7 @@ const WorkloadBalancing = () => {
 
       {/* Chatbot Button */}
       <div className="chatbot-btn flex items-center justify-between mt-4">
-        <Link to="/chat-bot">
-          <AiOutlineMessage className="text-3xl cursor-pointer hover:text-blue-500 transition-all duration-300" />
-        </Link>
+        
         <div className="ml-4">
           <label>Dark Mode</label>
           <input
