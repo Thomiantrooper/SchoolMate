@@ -13,7 +13,7 @@ import {
   deleteUserFailure,
 } from '../redux/user/userSlice';
 
-export default function StudentProfile() {
+export default function StaffProfile() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
 
@@ -116,7 +116,7 @@ const handleImageChange = (event) => {
     <div className="flex justify-center items-center min-h-screen bg-gray-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 animate-wave opacity-30"></div>
       <div className="relative max-w-3xl w-full p-10 bg-gray-200 shadow-2xl rounded-3xl">
-        <h1 className="text-center text-3xl font-semibold text-gray-800">Student Profile</h1>
+        <h1 className="text-center text-3xl font-semibold text-gray-800">Staff Profile</h1>
 
         {/* Profile Image Section */}
         <div className="relative mx-auto w-32 h-32 mt-6">
@@ -136,7 +136,7 @@ const handleImageChange = (event) => {
 
         {/* Student Badge */}
         <div className="text-center mt-4">
-          <Badge color="blue">Student</Badge>
+          <Badge color="blue">Staff</Badge>
         </div>
 
         {/* Profile Form */}
