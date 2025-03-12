@@ -41,7 +41,7 @@ export default function StudentPortal() {
   return (
     <div style={{
       display: "flex",
-      minHeight: "140vh",
+      minHeight: "220vh",
       backgroundColor: "#F5F5F5"
     }}>
       
