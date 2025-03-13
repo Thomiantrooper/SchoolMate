@@ -25,6 +25,7 @@ import StudentLMS from "./components/StudentLMS";
 import WorkloadBalancer from "./pages/WorkloadBalancer";
 import TeacherScheduler from "./pages/TeacherScheduler";
 import Chatbot from "./pages/Chatbot";
+import AiWork from "./pages/AiWork";
 
 import StaffHeader from "./components/StaffHeader";
 import StaffFooter from "./components/StaffFooter";
@@ -65,6 +66,7 @@ export default function App() {
                   <Route path="/lms" element={<StudentLMS />} />
                   <Route path="/ai-workload" element={<WorkloadBalancer />} />
                   <Route path="/teacher-scheduler" element={<TeacherScheduler />} />
+                  <Route path="/ai-schedule" element={<AiWork />} />
                 </Route>
               </Routes>
               <Footer />
