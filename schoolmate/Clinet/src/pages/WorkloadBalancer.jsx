@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
-import { AiOutlineMessage } from 'react-icons/ai'; // Chatbot Icon
-import { Link } from 'react-router-dom'; // For navigation to chatbot
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const WorkloadBalancing = () => {
+  const navigate = useNavigate(); // Initialize navigate
+
   // Dummy Data for teachers
   const [teachers, setTeachers] = useState([
     { id: 1, name: 'John Doe', tasksAssigned: 5 },
@@ -14,24 +15,14 @@ const WorkloadBalancing = () => {
     { id: 5, name: 'David Brown', tasksAssigned: 6 },
   ]);
 
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Task 1' },
-    { id: 2, title: 'Task 2' },
-    { id: 3, title: 'Task 3' },
-    { id: 4, title: 'Task 4' },
-    { id: 5, title: 'Task 5' },
-  ]);
-
-  const [workload, setWorkload] = useState({});
-  const [loading, setLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const chartData = {
-    labels: teachers.map(teacher => teacher.name),
+    labels: teachers.map((teacher) => teacher.name),
     datasets: [
       {
         label: 'Workload Distribution',
-        data: teachers.map(teacher => teacher.tasksAssigned),
+        data: teachers.map((teacher) => teacher.tasksAssigned),
         fill: false,
         borderColor: 'rgba(75,192,192,1)',
         tension: 0.1,
@@ -41,20 +32,13 @@ const WorkloadBalancing = () => {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  const handleWorkloadBalance = () => {
-    // Logic for balancing workload would be here (mocked for now)
-    setWorkload({
-      1: 5,
-      2: 3,
-      3: 7,
-      4: 4,
-      5: 6,
-    });
-  };
-
   return (
-    <div className={`workload-balancing-container p-6 min-h-screen transition-all duration-300 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <h2 className="text-3xl font-bold mb-4 animate__animated animate__fadeIn">Workload Balancer</h2>
+    <div
+      className={`workload-balancing-container p-6 min-h-screen transition-all duration-300 ${
+        isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
+      }`}
+    >
+      <h2 className="text-3xl font-bold mb-4">Workload Balancer</h2>
 
       {/* Teacher Table */}
       <div className="teacher-list mb-6">
@@ -86,16 +70,15 @@ const WorkloadBalancing = () => {
       {/* Button to Balance Workload */}
       <div className="workload-balance-btn mb-6">
         <button
-          onClick={handleWorkloadBalance}
+          onClick={() => navigate('/ai-schedule')} // Now it should work
           className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-all duration-300"
         >
           Balance Workload
         </button>
       </div>
 
-      {/* Chatbot Button */}
+      {/* Dark Mode Toggle */}
       <div className="chatbot-btn flex items-center justify-between mt-4">
-        
         <div className="ml-4">
           <label>Dark Mode</label>
           <input
