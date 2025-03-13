@@ -8,9 +8,8 @@ import {
   signInFailure,
 } from '../redux/user/userSlice';
 
-
 export default function SignIn() {
-  const [formData, setFormData] = useState({ email: '', password: '' }); // ✅ Fix: Set initial state
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -42,7 +41,15 @@ export default function SignIn() {
       }
 
       dispatch(signInSuccess(data));
-      navigate('/');
+      
+      // Check if email starts with std_ followed by numbers
+      if (/^std_\d+/.test(formData.email.split('@')[0])) {
+        navigate('/student-page');
+      } else if (/^staff_\d+/.test(formData.email.split('@')[0])){
+        navigate('/staff-page');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       dispatch(signInFailure(error.message || 'Something went wrong'));
     }
@@ -58,10 +65,9 @@ export default function SignIn() {
             <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
               SchoolMate
             </span>
-            
           </Link>
           <p className='text-sm mt-5 text-gray-600 dark:text-gray-300'>
-            Virtual study area to commit learnin easier
+            Virtual study area to make learning easier
           </p>
         </div>
 
@@ -74,7 +80,7 @@ export default function SignIn() {
                 type='email'
                 placeholder='name@company.com'
                 id='email'
-                value={formData.email}  // ✅ Fix: Controlled input
+                value={formData.email}
                 onChange={handleChange}
                 required
               />
@@ -85,7 +91,7 @@ export default function SignIn() {
                 type='password'
                 placeholder='**********'
                 id='password'
-                value={formData.password}  // ✅ Fix: Controlled input
+                value={formData.password}
                 onChange={handleChange}
                 required
               />
@@ -100,8 +106,6 @@ export default function SignIn() {
                 'Sign In'
               )}
             </Button>
-            {/* <OAuth /> */}
-
           </form>
           <div className='flex gap-2 text-sm mt-5'>
             <span> Don't have an account?</span>
