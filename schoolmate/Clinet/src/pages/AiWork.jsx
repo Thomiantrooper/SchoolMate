@@ -6,7 +6,7 @@ export default function AiWork() {
   const [students, setStudents] = useState([]);
   const [activeStatus, setActiveStatus] = useState({});
   const [classAssignments, setClassAssignments] = useState({});
-  const [leaveRequests, setLeaveRequests] = useState({}); // Store leave data
+  const [leaveRequests, setLeaveRequests] = useState({}); 
 
   useEffect(() => {
     fetchUsers();
@@ -47,7 +47,7 @@ export default function AiWork() {
 
       const leaveData = {};
       data.forEach((leave) => {
-        leaveData[leave.teacherId] = leave.isApproved; // Track approved leaves
+        leaveData[leave.teacherId] = leave.isApproved; 
       });
 
       setLeaveRequests(leaveData);
@@ -67,7 +67,7 @@ export default function AiWork() {
 
   const autoAssignTeachers = (teachers, statusData) => {
     const activeTeachers = teachers.filter(
-      (t) => statusData[t._id] && !leaveRequests[t._id] // Exclude teachers on leave
+      (t) => statusData[t._id] && !leaveRequests[t._id] 
     );
 
     let assignments = {};
