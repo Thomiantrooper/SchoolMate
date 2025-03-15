@@ -26,6 +26,9 @@ import WorkloadBalancer from "./pages/WorkloadBalancer";
 import TeacherScheduler from "./pages/TeacherScheduler";
 import Chatbot from "./pages/Chatbot";
 import AiWork from "./pages/AiWork";
+import StaffSalaryAssign from "./components/StaffSalaryAssign";
+import AdminMaintenance from "./components/AdminMaintenance";
+import AdminIncome from "./components/AdminIncome"
 
 import StaffHeader from "./components/StaffHeader";
 import StaffFooter from "./components/StaffFooter";
@@ -34,6 +37,8 @@ import StaffProfile from "./components/StaffProfile";
 import StaffModule from "./components/StaffModule";
 import StaffPayment from "./components/StaffPayment";
 import StaffContact from "./components/StaffContact";
+import AddIncomePage from "./components/AddIncome";
+import StaffAddBankdetails from "./components/StaffAddBankdetails";
 
 export default function App() {
   return (
@@ -67,6 +72,11 @@ export default function App() {
                   <Route path="/ai-workload" element={<WorkloadBalancer />} />
                   <Route path="/teacher-scheduler" element={<TeacherScheduler />} />
                   <Route path="/ai-schedule" element={<AiWork />} />
+                  <Route path="/assign-salary" element={<StaffSalaryAssign />} />
+                  <Route path="/admin-maintenance" element={<AdminMaintenance />} />
+                  <Route path="/admin-income" element={<AdminIncome />} />
+                  <Route path="/admin-income/add" element={<AddIncomePage />} />
+                  <Route path="/admin-income/add/:incomeId" element={<AddIncomePage />} />
                 </Route>
               </Routes>
               <Footer />
@@ -103,6 +113,7 @@ export default function App() {
                 <Route path="/modules" element={<StaffModule />} />
                 <Route path="/payment" element={<StaffPayment />} />
                 <Route path="/contact" element={<StaffContact />} />
+                <Route path="/bank-details" element={<StaffAddBankdetails />} />
               </Routes>
               <StaffFooter />
             </ThemeLayout>
