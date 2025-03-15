@@ -11,6 +11,9 @@ import cookieParser from "cookie-parser";
 import leaveRoutes from './routes/leaveRoute.js'; 
 import LeaveRequest from "./model/LeaveRequest.js";
 import workloadRoutes from './routes/workload.js';
+import staffbanksalary from './routes/StaffBankSalaryDetails.js'
+import Maintenance from './routes/Maintenance.js'
+import Income from './routes/Income.js'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -40,6 +43,10 @@ app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payments", StudentPaymentRoute);
 app.use('/api/workload', workloadRoutes);
+app.use('/api/salary', staffbanksalary);
+app.use('/api/maintenance', Maintenance);
+app.use('/api/income', Income);
+
 
 
 
