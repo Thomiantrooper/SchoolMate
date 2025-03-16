@@ -14,6 +14,7 @@ import workloadRoutes from './routes/workload.js';
 import staffbanksalary from './routes/StaffBankSalaryDetails.js'
 import Maintenance from './routes/Maintenance.js'
 import Income from './routes/Income.js'
+import "./cronJob.js";
 
 // Load environment variables from .env file
 dotenv.config();
