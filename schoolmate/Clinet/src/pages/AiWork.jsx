@@ -5,10 +5,12 @@ export default function AiWork() {
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
   const [activeStatus, setActiveStatus] = useState({});
-  const [classAssignments, setClassAssignments] = useState({}); // Store grade-teacher assignments
+  const [classAssignments, setClassAssignments] = useState({});
+  const [leaveRequests, setLeaveRequests] = useState({}); 
 
   useEffect(() => {
     fetchUsers();
+    fetchLeaveRequests();
   }, []);
 
   const fetchUsers = async () => {
@@ -16,11 +18,9 @@ export default function AiWork() {
       const res = await fetch("/api/user/users");
       const data = await res.json();
 
-      // Filter teachers & students based on email pattern
       const filteredTeachers = data.filter((user) => user.email.includes("staff"));
       const filteredStudents = data.filter((user) => user.email.includes("std"));
 
-      // Assign students to grades based on email pattern (std_XXX)
       filteredStudents.forEach((student) => {
         student.grade = determineGrade(student.email);
       });
@@ -28,21 +28,34 @@ export default function AiWork() {
       setTeachers(filteredTeachers);
       setStudents(filteredStudents);
 
-      // Initialize active status
       const statusData = {};
       data.forEach((user) => {
-        statusData[user._id] = user.isActive || false;
+        statusData[user._id] = user.isActive || true;
       });
       setActiveStatus(statusData);
 
-      // Assign teachers automatically
       autoAssignTeachers(filteredTeachers, statusData);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
 
-  // Function to determine the grade based on std_XXX
+  const fetchLeaveRequests = async () => {
+    try {
+      const res = await fetch("/api/leave/requests");
+      const data = await res.json();
+
+      const leaveData = {};
+      data.forEach((leave) => {
+        leaveData[leave.teacherId] = leave.isApproved; 
+      });
+
+      setLeaveRequests(leaveData);
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+    }
+  };
+
   const determineGrade = (email) => {
     const match = email.match(/std_(\d{1,3})/);
     if (!match) return "Unknown";
@@ -52,20 +65,20 @@ export default function AiWork() {
     return `Grade ${grade}`;
   };
 
-  // Function to auto-assign teachers equally among grades
   const autoAssignTeachers = (teachers, statusData) => {
-    const activeTeachers = teachers.filter((t) => statusData[t._id]); // Get only active teachers
+    const activeTeachers = teachers.filter(
+      (t) => statusData[t._id] && !leaveRequests[t._id] 
+    );
+
     let assignments = {};
 
-    // If no active teachers, assign "No teacher available"
     if (activeTeachers.length === 0) {
       for (let i = 1; i <= 13; i++) {
         assignments[`Grade ${i}`] = "No teacher available";
       }
     } else {
-      // Distribute teachers evenly across grades
       for (let i = 1; i <= 13; i++) {
-        const assignedTeacher = activeTeachers[i % activeTeachers.length]; // Round-robin assignment
+        const assignedTeacher = activeTeachers[i % activeTeachers.length];
         assignments[`Grade ${i}`] = assignedTeacher ? assignedTeacher.username : "No teacher available";
       }
     }
@@ -80,14 +93,12 @@ export default function AiWork() {
       [userId]: newStatus,
     }));
 
-    // Optional: Update the backend with new active status
     await fetch(`/api/user/${userId}/status`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: newStatus }),
     });
 
-    // Reassign teachers dynamically
     autoAssignTeachers(teachers, { ...activeStatus, [userId]: newStatus });
   };
 
@@ -95,10 +106,7 @@ export default function AiWork() {
     <div className="max-w-6xl mx-auto p-5">
       <h2 className="text-2xl font-semibold text-center mb-5">AI Work Page</h2>
 
-      {/* Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Teachers Table */}
         <div>
           <h3 className="text-xl font-semibold mb-3 text-center">Teachers</h3>
           <Table hoverable>
@@ -113,9 +121,10 @@ export default function AiWork() {
                   <Table.Cell>
                     <Button
                       onClick={() => toggleActiveStatus(teacher._id)}
-                      color={activeStatus[teacher._id] ? "green" : "red"}
+                      color={leaveRequests[teacher._id] ? "red" : activeStatus[teacher._id] ? "green" : "red"}
+                      disabled={leaveRequests[teacher._id]} // Disable button if teacher is on leave
                     >
-                      {activeStatus[teacher._id] ? "Active" : "Inactive"}
+                      {leaveRequests[teacher._id] ? "On Leave" : activeStatus[teacher._id] ? "Active" : "Inactive"}
                     </Button>
                   </Table.Cell>
                 </Table.Row>
@@ -124,7 +133,6 @@ export default function AiWork() {
           </Table>
         </div>
 
-        {/* Students Table */}
         <div>
           <h3 className="text-xl font-semibold mb-3 text-center">Students</h3>
           <Table hoverable>
@@ -153,7 +161,6 @@ export default function AiWork() {
         </div>
       </div>
 
-      {/* Assigned Teachers to Grades */}
       <div className="mt-10">
         <h3 className="text-xl font-semibold text-center mb-3">Assigned Teachers</h3>
         <Table hoverable>
