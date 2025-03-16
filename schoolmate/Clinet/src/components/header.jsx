@@ -5,7 +5,7 @@ import { FaMoon, FaSun } from "react-icons/fa";
 import { useContext } from "react";
 import { ThemeContext } from "./ThemeLayout";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../redux/user/userSlice"; 
+import { logout } from "../redux/user/userSlice";
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -35,10 +35,10 @@ export default function Header() {
         className="self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white"
       >
         <span className="px-3 py-2 bg-gradient-to-r from-blue-600 via-teal-500 to-green-400 rounded-xl text-white font-bold shadow-md transition-transform transform hover:scale-105">
-  SchoolMate
-</span>
+          SchoolMate
+        </span>
 
-        
+
       </Link>
       <form>
         <TextInput
@@ -90,7 +90,7 @@ export default function Header() {
             </Button>
           </Link>
         )}
-        
+
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
