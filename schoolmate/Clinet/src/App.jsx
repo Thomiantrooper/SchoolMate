@@ -39,6 +39,7 @@ import StaffPayment from "./components/StaffPayment";
 import StaffContact from "./components/StaffContact";
 import AddIncomePage from "./components/AddIncome";
 import StaffAddBankdetails from "./components/StaffAddBankdetails";
+import Library from "./pages/Library";
 
 export default function App() {
   return (
@@ -77,6 +78,7 @@ export default function App() {
                   <Route path="/admin-income" element={<AdminIncome />} />
                   <Route path="/admin-income/add" element={<AddIncomePage />} />
                   <Route path="/admin-income/add/:incomeId" element={<AddIncomePage />} />
+                  <Route path="/library" element={<Library />} />
                 </Route>
               </Routes>
               <Footer />
