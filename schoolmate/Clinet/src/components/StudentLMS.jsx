@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaHeart, FaPlay, FaComment } from "react-icons/fa"; // Added FaComment for discussion
+import { useNavigate } from "react-router-dom";
 
 const modules = [
   {
@@ -54,6 +55,8 @@ const StudentLMS = () => {
       setFavorites([...favorites, videoUrl]);
     }
   };
+
+  const navigate = useNavigate();
 
   const handleProgressUpdate = (videoUrl) => {
     setProgress({ ...progress, [videoUrl]: true });
@@ -223,6 +226,15 @@ const StudentLMS = () => {
             ))
         ))}
       </div>
+      
+      <button
+        onClick={() => navigate("/library")} // Navigate to /library page
+        className="mt-6 px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md hover:bg-yellow-600 transition"
+      >
+        📖 Go to Library
+      </button>
+
+
     </div>
   );
 };

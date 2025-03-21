@@ -7,6 +7,8 @@ export default function AdminStudentFees() {
   const [fees, setFees] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Fetch fees data from API
@@ -56,6 +58,17 @@ export default function AdminStudentFees() {
     setSelectedImage(null);
   };
 
+  const filteredFees = fees.filter(fee => 
+    (selectedMonth === "" || fee.month === selectedMonth) &&
+    (
+      fee.userId?.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fee.userId?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fee.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fee.branch.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fee.method.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
   return (
     <div className={`p-6 flex flex-col items-center w-full min-h-screen transition-all duration-300 ${
       darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
@@ -71,6 +84,32 @@ export default function AdminStudentFees() {
           className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-4 py-2 rounded">
           Back to Dashboard
         </button>
+      </div>
+
+       <div className={`mb-4 w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md transition-all duration-300 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
+        <div>
+          <label className="mr-2 font-semibold">Filter by Month:</label>
+          <select 
+            className={`p-2 border rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"}`} 
+            value={selectedMonth} 
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            <option value="">All</option>
+            {Array.from(new Set(fees.map(fee => fee.month))).map(month => (
+              <option key={month} value={month}>{month}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mr-2 font-semibold">Search:</label>
+          <input 
+            type="text" 
+            className={`p-2 border rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"}`} 
+            placeholder="Search by name, email, bank, etc." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Fees Table */}
@@ -97,9 +136,9 @@ export default function AdminStudentFees() {
             </tr>
           </thead>
           <tbody>
-          {fees.map((fee) => (
+          {filteredFees.map((fee) => (
   <tr key={fee._id} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
-    <td className="p-2">{fee._id}</td>
+    <td className="p-2">{fee.userId._id}</td>
     <td className="p-2 font-semibold">{fee.userId ? fee.userId.username : "Unknown"}</td>
     <td className="p-2">{fee.userId ? fee.email : "Unknown"}</td>
     <td className="p-2">{fee.grade}</td>

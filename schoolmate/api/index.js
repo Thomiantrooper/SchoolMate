@@ -8,6 +8,13 @@ import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
 import StudentPaymentRoute from "./routes/StudentPayment.route.js";
 import cookieParser from "cookie-parser";
+import leaveRoutes from './routes/leaveRoute.js'; 
+import LeaveRequest from "./model/LeaveRequest.js";
+import workloadRoutes from './routes/workload.js';
+import staffbanksalary from './routes/StaffBankSalaryDetails.js'
+import Maintenance from './routes/Maintenance.js'
+import Income from './routes/Income.js'
+import "./cronJob.js";
 import Exam from './routes/exam.route.js'
 
 // Load environment variables from .env file
@@ -36,6 +43,13 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payments", StudentPaymentRoute);
+app.use('/api/workload', workloadRoutes);
+app.use('/api/salary', staffbanksalary);
+app.use('/api/maintenance', Maintenance);
+app.use('/api/income', Income);
+
+
+
 app.use('/api/exam', Exam);
 
 // Error Handling Middleware
