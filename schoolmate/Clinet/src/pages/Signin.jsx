@@ -45,6 +45,8 @@ export default function SignIn() {
       // Check if email starts with std_ followed by numbers
       if (/^std_\d+/.test(formData.email.split('@')[0])) {
         navigate('/student-page');
+      } else if (/^staff_\d+/.test(formData.email.split('@')[0])){
+        navigate('/staff-page');
       } else {
         navigate('/');
       }

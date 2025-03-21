@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { ThemeContext } from "../components/ThemeLayout"; 
+import axios from "axios";
 
 export default function AdminStudentFees() {
   const { darkMode } = useContext(ThemeContext);
@@ -24,13 +25,25 @@ export default function AdminStudentFees() {
   }, []);
 
   const handleAccept = async (id) => {
-    console.log("Accepted fee with ID:", id);
-    // Call API to update the status (optional)
+    try {
+      await axios.put(`http://localhost:3000/api/payments/${id}`, { status: "paid" });
+      alert("Payment accepted successfully!");
+      window.location.reload(); // Reload the page to reflect changes
+    } catch (error) {
+      console.error("Error accepting payment:", error);
+      alert("Failed to accept payment.");
+    }
   };
-
+  
   const handleDeny = async (id) => {
-    console.log("Denied fee with ID:", id);
-    // Call API to update the status (optional)
+    try {
+      await axios.put(`http://localhost:3000/api/payments/${id}`, { status: "failed" });
+      alert("Payment denied successfully!");
+      window.location.reload(); // Reload the page to reflect changes
+    } catch (error) {
+      console.error("Error denying payment:", error);
+      alert("Failed to deny payment.");
+    }
   };
 
   const openModal = (imagePath) => {
@@ -61,7 +74,7 @@ export default function AdminStudentFees() {
       </div>
 
       {/* Fees Table */}
-      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md transition-all duration-300 ${
+      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md transition-all duration-300 overflow-x-auto ${
         darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
       }`}>
         <h2 className="text-lg font-semibold mb-2">📋 Manage Student Fees</h2>
@@ -75,8 +88,11 @@ export default function AdminStudentFees() {
               <th className="p-2">Bank</th>
               <th className="p-2">Branch</th>
               <th className="p-2">Amount</th>
+              <th className="p-2">Method</th>
+              <th className="p-2">Month</th>
               <th className="p-2">Slip</th>
               <th className="p-2">Date</th>
+              <th className="p-2">Status</th>
               <th className="p-2">Actions</th>
             </tr>
           </thead>
@@ -85,11 +101,13 @@ export default function AdminStudentFees() {
   <tr key={fee._id} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
     <td className="p-2">{fee._id}</td>
     <td className="p-2 font-semibold">{fee.userId ? fee.userId.username : "Unknown"}</td>
-    <td className="p-2">{fee.userId ? fee.userId.email : "Unknown"}</td>
-    <td className="p-2">{fee.course}</td>
+    <td className="p-2">{fee.userId ? fee.email : "Unknown"}</td>
+    <td className="p-2">{fee.grade}</td>
     <td className="p-2">{fee.bank}</td>
     <td className="p-2">{fee.branch}</td>
     <td className="p-2">${fee.amount}</td>
+    <td className="p-2">{fee.method}</td>
+    <td className="p-2">{fee.month}</td>
     <td className="p-2">
     {fee.slipImage ? (
                     <img
@@ -103,10 +121,20 @@ export default function AdminStudentFees() {
                   )}
     </td>
     <td className="p-2">{new Date(fee.date).toLocaleDateString()}</td>
+    <td className="p-2">{fee.status}</td>
     <td className="p-2 flex space-x-2">
-      <button onClick={() => handleAccept(fee._id)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">✔ Accept</button>
-      <button onClick={() => handleDeny(fee._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">✖ Deny</button>
-    </td>
+  <button 
+    onClick={() => handleAccept(fee._id)} 
+    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
+    ✔ Accept
+  </button>
+  
+  <button 
+    onClick={() => handleDeny(fee._id)} 
+    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+    ✖ Deny
+  </button>
+</td>
   </tr>
 ))}
 
