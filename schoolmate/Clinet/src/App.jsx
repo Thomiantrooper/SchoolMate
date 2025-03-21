@@ -4,7 +4,7 @@ import About from "./pages/About";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
-import Header from "./components/Header";
+import Header from "./components/header";
 import Footer from "./components/Footer";
 import ThemeLayout from "./components/ThemeLayout";
 import PrivateRoute from "./components/PrivateRoute";
@@ -45,7 +45,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
+
         <Route
           path="/*"
           element={
@@ -58,6 +58,8 @@ export default function App() {
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/chat-bot" element={<Chatbot />} />
+
+
 
                 {/* Protected Routes */}
                 <Route element={<PrivateRoute />}>

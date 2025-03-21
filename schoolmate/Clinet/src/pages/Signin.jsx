@@ -41,11 +41,11 @@ export default function SignIn() {
       }
 
       dispatch(signInSuccess(data));
-      
+
       // Check if email starts with std_ followed by numbers
       if (/^std_\d+/.test(formData.email.split('@')[0])) {
         navigate('/student-page');
-      } else if (/^staff_\d+/.test(formData.email.split('@')[0])){
+      } else if (/^staff_\d+/.test(formData.email.split('@')[0])) {
         navigate('/staff-page');
       } else {
         navigate('/');
@@ -58,7 +58,7 @@ export default function SignIn() {
   return (
     <div className='min-h-screen mt-20 flex items-center justify-center'>
       <div className='p-6 max-w-3xl mx-auto flex flex-col md:flex-row md:items-center gap-5 shadow-lg bg-white dark:bg-gray-900 rounded-lg'>
-        
+
         {/* Left Section */}
         <div className='flex-1'>
           <Link to='/' className='font-bold dark:text-white text-4xl'>
