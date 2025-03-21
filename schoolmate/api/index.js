@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
 import StudentPaymentRoute from "./routes/StudentPayment.route.js"
 import cookieParser from "cookie-parser";
+import Exam from './routes/exam.route.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -30,11 +31,13 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
 
+
 // API Routes
 app.use("/uploads", express.static("uploads"));
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payments", StudentPaymentRoute);
+app.use('/api/exam', Exam);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
