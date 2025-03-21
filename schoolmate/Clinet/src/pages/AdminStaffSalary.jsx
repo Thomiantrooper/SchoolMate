@@ -160,8 +160,24 @@ export default function AdminStaffSalary() {
                   <td className="p-3">${staff.salaryDetails?.total || 0}</td>
                   <td className="p-3 font-semibold">{staff.salaryDetails?.status || "pending"}</td>
                   <td className="p-3 flex mt-8">
-                    <button onClick={() => handleUpdateClick(staff)} className="px-3 py-1 bg-yellow-500 text-white rounded mr-2">Update</button>
-                    <button onClick={() => handlePaySalary(staff)}  className="px-3 py-1 bg-green-500 text-white rounded">Pay</button>
+                    <button 
+                      onClick={() => handleUpdateClick(staff)} 
+                      className={`px-3 py-1 text-white rounded mr-2 ${
+                        staff.salaryDetails?.status === "paid" ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500"
+                      }`}
+                      disabled={staff.salaryDetails?.status === "paid"}
+                    >
+                      Update
+                    </button>
+                    <button 
+                      onClick={() => handlePaySalary(staff)}  
+                      className={`px-3 py-1 text-white rounded ${
+                        staff.salaryDetails?.status === "paid" ? "bg-gray-400 cursor-not-allowed" : "bg-green-500"
+                      }`}
+                      disabled={staff.salaryDetails?.status === "paid"}
+                    >
+                      Pay
+                    </button>
                   </td>
                 </tr>
               ))

@@ -3,6 +3,19 @@ import StaffSalaryDetails from "../model/StaffSalaryDetails.js";
 import StaffBankDetails from "../model/StaffBankDetails.js";
 import mongoose from 'mongoose';
 import multer from "multer";
+import nodemailer from "nodemailer";
+import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: 'vuever.lk@gmail.com',
+    pass: 'sppzmnejqhttfnnz'
+  }
+});
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -43,6 +56,7 @@ export const createBankDetails = async (req, res) => {
 export const updateSalary = async (req, res) => {
   try {
     const { userId, salary, month, year } = req.body;
+    console.log("Request Body:", req.body);
 
     // Find the staff bank details by userId
     const bankDetails = await StaffBankDetails.findOne({ userId });
@@ -50,71 +64,116 @@ export const updateSalary = async (req, res) => {
       return res.status(404).json({ error: "Bank details not found for the user" });
     }
 
-    // Calculate EPF (Employee 8%, Employer 12%) and ETF (Employer 3%)
-    const EPF = {
-      employee: salary * 0.08, // Employee 8% contribution
-      employer: salary * 0.12  // Employer 12% contribution
-    };
-    const ETF = salary * 0.03;  // Employer 3% ETF contribution
-
-    // Calculate total salary without bonus and leave salary
-    const total = salary - EPF.employee;  // Employee's EPF is deducted, but bonus and leave salary are not added yet
-
-    // Update the salary in the bank details
+    // Update the salary in bank details
     bankDetails.salary = salary;
-
-    // Save the updated bank details
     await bankDetails.save();
 
-    // Create a new salary details entry (initially without bonus and leave salary)
-    const salaryDetails = new StaffSalaryDetails({
-      userId,
-      salary,
-      EPF,
-      ETF,
-      bonus: 0,  // No bonus initially
-      leaveSalary: 0,  // No leave salary initially
-      total,
-      month,
-      year,
-      status: "pending" // Set status as "pending"
-    });
+    // ✅ Check if a salary entry already exists for the same user, month, and year
+    let salaryDetails = await StaffSalaryDetails.findOne({ userId, month, year });
 
-    await salaryDetails.save();
+    if (salaryDetails) {
+      if (salaryDetails.status === "paid") {
+        // ✅ If status is "paid", do NOT update salaryDetails.salary
+        return res.status(200).json({
+          message: "Salary is already paid. Only bank details have been updated.",
+          bankDetails,
+        });
+      }
+
+      // ✅ If status is NOT "paid", update salary details
+      const EPF = {
+        employee: salary * 0.08, 
+        employer: salary * 0.12  
+      };
+      const ETF = salary * 0.03;  
+      const total = salary - EPF.employee;  
+
+      salaryDetails.salary = salary;
+      salaryDetails.EPF = EPF;
+      salaryDetails.ETF = ETF;
+      salaryDetails.total = total;
+      await salaryDetails.save();
+    } else {
+      // ✅ Create a new salary entry if it doesn't exist
+      const EPF = {
+        employee: salary * 0.08, 
+        employer: salary * 0.12  
+      };
+      const ETF = salary * 0.03;  
+      const total = salary - EPF.employee;  
+
+      salaryDetails = new StaffSalaryDetails({
+        userId,
+        salary,
+        EPF,
+        ETF,
+        bonus: 0, 
+        leaveSalary: 0, 
+        total,
+        month,
+        year,
+        status: "pending"
+      });
+      await salaryDetails.save();
+    }
+
     res.status(200).json(salaryDetails);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
+
 
 
 export const updateBonusAndLeaveSalary = async (req, res) => {
   try {
     const { userId, bonus, leaveSalary, month, year, status } = req.body;
     console.log("Received userId:", userId);
-console.log("Request Body:", req.body);
+    console.log("Request Body:", req.body);
 
-    // Find the existing salary details for the given userId, month, and year
-    const salaryDetails = await StaffSalaryDetails.findOne({ userId, month, year });
+    // Find the existing salary details
+    const salaryDetails = await StaffSalaryDetails.findOne({ userId, month, year }).populate("userId");
     if (!salaryDetails) {
       return res.status(404).json({ error: "Salary details not found for the user" });
     }
 
-    // Update the bonus and leave salary
+    // Find bank details
+    const bankDetails = await StaffBankDetails.findOne({ userId }).populate("userId");
+    if (!bankDetails) {
+      return res.status(404).json({ error: "Bank details not found for the user" });
+    }
+
+    
+
+    // Update the salary details
     salaryDetails.bonus = bonus;
     salaryDetails.leaveSalary = leaveSalary;
     salaryDetails.status = status;
-
-    // Recalculate total salary (now including bonus and leave salary)
     salaryDetails.total = salaryDetails.salary - salaryDetails.EPF.employee + salaryDetails.bonus - salaryDetails.leaveSalary;
-
-    // Save the updated salary details
     await salaryDetails.save();
+
+    // If status is paid, generate PDF and send email
+    if (status === "paid") {
+      console.log("✅ Status is 'paid', generating PDF...");
+
+      const pdfPath = await generateSalaryPDF(salaryDetails, bankDetails);
+    console.log("✅ PDF Generated at:", pdfPath);
+
+    console.log("📨 Sending email to:", bankDetails.email);
+    await sendSalaryEmail(bankDetails.email, pdfPath);
+    console.log("✅ Email sent successfully!");
+    
+    }
+
     res.status(200).json(salaryDetails);
   } catch (error) {
+    console.error("❌ Error updating salary:", error);
     res.status(400).json({ error: error.message });
   }
 };
+
+
 
 export const updateBankDetails = async (req, res) => {
   try {
@@ -237,6 +296,81 @@ export const getBankAndSalaryDetailsById = async (req, res) => {
   }
 };
 
+
+const __filename = fileURLToPath(import.meta.url); 
+const __dirname = path.dirname(__filename);
+
+const ensureUploadsDir = () => {
+  const dirPath = path.join(__dirname, 'uploads');
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath);
+  }
+};
+
+const generateSalaryPDF = async (salaryDetails, bankDetails) => {
+  return new Promise((resolve, reject) => {
+    ensureUploadsDir();
+    const pdfPath = path.join(__dirname, "./uploads", `salary-${salaryDetails.userId._id}.pdf`);
+
+    console.log("📄 Creating PDF at:", pdfPath);
+
+    const doc = new PDFDocument();
+    const stream = fs.createWriteStream(pdfPath);
+
+    doc.pipe(stream);
+
+    doc.fontSize(20).text("Salary Slip", { align: "center" }).moveDown();
+    doc.fontSize(14).text(`Employee Name: ${bankDetails.name}`);
+    doc.text(`Salary: Rs.${salaryDetails.salary}`);
+    doc.text(`EPF Employee: Rs.${salaryDetails.EPF.employee}`);
+    doc.text(`EPF Employer: Rs.${salaryDetails.EPF.employer}`);
+    doc.text(`ETF: Rs.${salaryDetails.ETF}`);
+    doc.text(`Bonus: Rs.${salaryDetails.bonus}`);
+    doc.text(`Leave Salary: Rs.${salaryDetails.leaveSalary}`);
+    doc.text(`Total Salary: Rs.${salaryDetails.total}`);
+    doc.text(`Status: ${salaryDetails.status}`);
+    doc.text(`Month: ${salaryDetails.month}/${salaryDetails.year}`);
+
+    doc.end();
+
+    stream.on("finish", () => {
+      console.log("✅ PDF successfully generated at:", pdfPath);
+
+      // Check if file exists before resolving
+      setTimeout(() => {
+        if (fs.existsSync(pdfPath)) {
+          console.log("🔍 Verified: PDF file exists.");
+          resolve(pdfPath);
+        } else {
+          console.error("❌ PDF file was not created.");
+          reject(new Error("PDF file was not created"));
+        }
+      }, 1000);
+    });
+
+    stream.on("error", (err) => {
+      console.error("❌ PDF Generation Error:", err);
+      reject(err);
+    });
+  });
+};
+
+const sendSalaryEmail = async (email, pdfPath) => {
+  const mailOptions = {
+    from: 'vuever.lk@gmail.com',
+    to: email,
+    subject: "Salary Payment Confirmation",
+    text: "Your salary has been paid. Please find the attached salary slip.",
+    attachments: [{ filename: "Salary-Slip.pdf", path: pdfPath }]
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Salary email sent to ${email}`);
+  } catch (error) {
+    console.error("Error sending salary email:", error);
+  }
+};
 
 
 

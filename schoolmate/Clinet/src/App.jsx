@@ -4,7 +4,7 @@ import About from "./pages/About";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
-import Header from "./components/Header";
+import Header from "./components/header";
 import Footer from "./components/Footer";
 import ThemeLayout from "./components/ThemeLayout";
 import PrivateRoute from "./components/PrivateRoute";
@@ -39,12 +39,13 @@ import StaffPayment from "./components/StaffPayment";
 import StaffContact from "./components/StaffContact";
 import AddIncomePage from "./components/AddIncome";
 import StaffAddBankdetails from "./components/StaffAddBankdetails";
+import Library from "./pages/Library";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
+
         <Route
           path="/*"
           element={
@@ -57,6 +58,8 @@ export default function App() {
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/chat-bot" element={<Chatbot />} />
+
+
 
                 {/* Protected Routes */}
                 <Route element={<PrivateRoute />}>
@@ -77,6 +80,7 @@ export default function App() {
                   <Route path="/admin-income" element={<AdminIncome />} />
                   <Route path="/admin-income/add" element={<AddIncomePage />} />
                   <Route path="/admin-income/add/:incomeId" element={<AddIncomePage />} />
+                  <Route path="/library" element={<Library />} />
                 </Route>
               </Routes>
               <Footer />

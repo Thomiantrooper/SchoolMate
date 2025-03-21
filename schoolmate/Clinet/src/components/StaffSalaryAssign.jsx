@@ -71,36 +71,6 @@ export default function AssignSalary() {
     }
   };
 
-  // Handle bonus and leave salary update
- {/* const handleBonusLeaveUpdate = async (staff) => {
-    setLoading(true);
-    try {
-      const bonusData = {
-        userId: staff.userId,
-        bonus: salaryInputs[staff.userId]?.bonus ?? staff.bonus ?? 0,
-        leaveSalary: salaryInputs[staff.userId]?.leaveSalary ?? staff.leaveSalary ?? 0,
-        month: currentMonth,
-        year: currentYear,
-        status: salaryInputs[staff.userId]?.status ?? staff.status ?? "pending",
-      };
-
-      await axios.put("http://localhost:3000/api/salary/update-bonus-leave", bonusData);
-      alert("Bonus and leave salary updated successfully!");
-
-      setStaffList((prevList) =>
-        prevList.map((s) =>
-          s.userId === staff.userId
-            ? { ...s, bonus: bonusData.bonus, leaveSalary: bonusData.leaveSalary, status: bonusData.status }
-            : s
-        )
-      );
-    } catch (error) {
-      console.error("Error updating bonus/leave salary:", error);
-      alert("Failed to update bonus/leave salary.");
-    } finally {
-      setLoading(false);
-    }
-  };*/}
 
   return (
     <div
@@ -126,16 +96,13 @@ export default function AssignSalary() {
               <th className="p-2">Name</th>
               <th className="p-2">Email</th>
               <th className="p-2">Salary</th>
-              {/*<th className="p-2">Bonus</th>
-              <th className="p-2">Leave Salary</th>
-              <th className="p-2">Status</th>*/}
               <th className="p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {staffList.length > 0 ? (
-              staffList.map((staff) => (
-                <tr key={staff.userId} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
+              staffList.map((staff, index) => (
+                <tr key={`${staff.userId}-${index}`} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
                   <td className="p-2">{staff.userId}</td>
                   <td className="p-2">{staff.name}</td>
                   <td className="p-2">{staff.email}</td>
@@ -149,36 +116,6 @@ export default function AssignSalary() {
                       onChange={(e) => handleSalaryChange(staff.userId, "salary", e.target.value)}
                     />
                   </td>
-                  {/*<td className="p-2">
-                    <input
-                      type="number"
-                      className={`p-1 border rounded w-20 ${
-                        darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
-                      }`}
-                      value={salaryInputs[staff.userId]?.bonus ?? staff.bonus ?? ""}
-                      onChange={(e) => handleSalaryChange(staff.userId, "bonus", e.target.value)}
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      type="number"
-                      className={`p-1 border rounded w-20 ${
-                        darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
-                      }`}
-                      value={salaryInputs[staff.userId]?.leaveSalary ?? staff.leaveSalary ?? ""}
-                      onChange={(e) => handleSalaryChange(staff.userId, "leaveSalary", e.target.value)}
-                    />
-                  </td>
-                  <td className="p-2">
-                    <select
-                      className="p-1 border rounded w-24"
-                      value={salaryInputs[staff.userId]?.status ?? staff.status ?? "pending"}
-                      onChange={(e) => handleSalaryChange(staff.userId, "status", e.target.value)}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="paid">Paid</option>
-                    </select>
-                  </td>*/}
                   <td className="p-2">
                     <button
                       onClick={() => handleSalarySubmit(staff)}
@@ -187,13 +124,6 @@ export default function AssignSalary() {
                     >
                       {loading ? "Processing..." : "Assign Salary"}
                     </button>
-                   {/* <button
-                      onClick={() => handleBonusLeaveUpdate(staff)}
-                      className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                      disabled={loading}
-                    >
-                      {loading ? "Processing..." : "Update Bonus & Leave"}
-                    </button>*/}
                   </td>
                 </tr>
               ))
