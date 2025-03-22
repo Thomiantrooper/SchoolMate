@@ -15,6 +15,7 @@ import staffbanksalary from './routes/StaffBankSalaryDetails.js'
 import Maintenance from './routes/Maintenance.js'
 import Income from './routes/Income.js'
 import "./cronJob.js";
+import Exam from './routes/exam.route.js'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -35,7 +36,6 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
-app.use(bodyParser.json());
 
 // API Routes
 app.use('/api/leave', leaveRoutes); // Adding the leave routes
@@ -50,6 +50,7 @@ app.use('/api/income', Income);
 
 
 
+app.use('/api/exam', Exam);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
