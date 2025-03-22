@@ -8,7 +8,7 @@ import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
 import StudentPaymentRoute from "./routes/StudentPayment.route.js";
 import cookieParser from "cookie-parser";
-import leaveRoutes from './routes/leaveRoute.js'; 
+import leaveRoutes from './routes/leaveRoute.js';
 import LeaveRequest from "./model/LeaveRequest.js";
 import workloadRoutes from './routes/workload.js';
 import staffbanksalary from './routes/StaffBankSalaryDetails.js'
@@ -16,6 +16,8 @@ import Maintenance from './routes/Maintenance.js'
 import Income from './routes/Income.js'
 import "./cronJob.js";
 import Exam from './routes/exam.route.js'
+import studentRoute from './routes/studentRoute.js';
+
 
 // Load environment variables from .env file
 dotenv.config();
@@ -47,9 +49,7 @@ app.use('/api/workload', workloadRoutes);
 app.use('/api/salary', staffbanksalary);
 app.use('/api/maintenance', Maintenance);
 app.use('/api/income', Income);
-
-
-
+app.use('/api/student', studentRoute);
 app.use('/api/exam', Exam);
 
 // Error Handling Middleware
@@ -65,7 +65,7 @@ app.use((err, req, res, next) => {
 
 app.get('/api/leaveRequests', async (req, res) => {
   try {
-    const leaveRequests = await LeaveRequest.find(); 
+    const leaveRequests = await LeaveRequest.find();
     res.status(200).json(leaveRequests);
   } catch (error) {
     res.status(500).json({ message: "Error fetching leave requests" });
