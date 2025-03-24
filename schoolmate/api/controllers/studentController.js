@@ -21,10 +21,32 @@ export const getStudents = async (req, res) => {
     }
 };
 
+// Update Student
+export const updateStudent = async (req, res) => {
+    try {
+        const updatedStudent = await Student.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedStudent) {
+            return res.status(404).json({ error: "Student not found" });
+        }
+
+        res.status(200).json(updatedStudent);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Delete Student
 export const deleteStudent = async (req, res) => {
     try {
-        await Student.findByIdAndDelete(req.params.id);
+        const deletedStudent = await Student.findByIdAndDelete(req.params.id);
+        if (!deletedStudent) {
+            return res.status(404).json({ error: "Student not found" });
+        }
         res.status(200).json({ message: "Student deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });

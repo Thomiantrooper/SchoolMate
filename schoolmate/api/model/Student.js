@@ -7,6 +7,8 @@ const StudentSchema = new mongoose.Schema({
     gender: { type: String, required: true, enum: ["Male", "Female", "Other"] },
     grade: { type: Number, required: true },
     section: { type: String, required: true },
+    studentEmail: { type: String, required: true, unique: true },
+    StudentPassword: { type: String, required: true },
 });
 
 export default mongoose.model("Student", StudentSchema);
