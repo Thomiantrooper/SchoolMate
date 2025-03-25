@@ -19,28 +19,30 @@ export default function AdminStudent() {
     section: "",
   });
   const [validationError, setValidationError] = useState("");
-  const [nextStudentNumber, setNextStudentNumber] = useState(0); // Track the next student number
+  const [nextStudentNumber, setNextStudentNumber] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchStudents();
   }, []);
 
-  // Fetch students and determine the next student number
   const fetchStudents = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get("http://localhost:3000/api/student/all");
       setStudents(response.data);
 
-      // Find the highest student number
       const highestStudentNumber = response.data.reduce((max, student) => {
         const studentNumber = parseInt(student.studentEmail.match(/\d+/)[0], 10);
         return studentNumber > max ? studentNumber : max;
       }, -1);
 
-      // Set the next student number
       setNextStudentNumber(highestStudentNumber + 1);
     } catch (error) {
       console.error("Error fetching students:", error);
+      setValidationError("Failed to fetch students. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,14 +77,13 @@ export default function AdminStudent() {
     });
   };
 
-  // Validate email format
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
 
-  // Validate form fields
   const validateForm = () => {
+    // Check empty fields
     if (
       !newStudent.name ||
       !newStudent.personalEmail ||
@@ -95,8 +96,37 @@ export default function AdminStudent() {
       return false;
     }
 
+    // Validate email format
     if (!validateEmail(newStudent.personalEmail)) {
       setValidationError("Please enter a valid personal email address.");
+      return false;
+    }
+
+    // Check if email already exists (only for add mode)
+    if (!isEditModalOpen && students.some(student => student.personalEmail === newStudent.personalEmail)) {
+      setValidationError("This email is already registered to another student.");
+      return false;
+    }
+
+    // Validate age range (1-25)
+    const age = parseInt(newStudent.age);
+    if (isNaN(age)) {
+      setValidationError("Age must be a number.");
+      return false;
+    }
+    if (age < 1 || age > 25) {
+      setValidationError("Age must be between 1 and 25.");
+      return false;
+    }
+
+    // Validate grade range (1-13)
+    const grade = parseInt(newStudent.grade);
+    if (isNaN(grade)) {
+      setValidationError("Grade must be a number.");
+      return false;
+    }
+    if (grade < 1 || grade > 13) {
+      setValidationError("Grade must be between 1 and 13.");
       return false;
     }
 
@@ -104,38 +134,62 @@ export default function AdminStudent() {
     return true;
   };
 
-  // Add a new student
   const handleAddStudent = async () => {
     if (!validateForm()) return;
 
     try {
-      // Generate the next student email
+      setIsLoading(true);
       const studentEmail = `std_${String(nextStudentNumber).padStart(2, "0")}@gmail.com`;
+      const studentPassword = studentEmail.split('@')[0];
 
-      // Add the generated student email to the newStudent object
-      const studentWithEmail = { ...newStudent, studentEmail, StudentPassword: "defaultPassword" }; // Add a default password
+      const studentWithEmail = {
+        ...newStudent,
+        studentEmail,
+        StudentPassword: studentPassword
+      };
 
-      // Send the request to add the student
       const response = await axios.post("http://localhost:3000/api/student/add", studentWithEmail);
-
-      // Update the students list
       setStudents([...students, response.data]);
-
-      // Increment the next student number
       setNextStudentNumber(nextStudentNumber + 1);
 
-      // Close the modal and reset the form
+      // Prepare and open email draft
+      const emailSubject = "Welcome to SchoolMate - Your Student Account Credentials";
+      const emailBody = `Dear ${newStudent.name},\n\n` +
+        `Welcome to SchoolMate! We're excited to have you join our learning community.\n\n` +
+        `Your student account has been successfully created. Here are your login credentials:\n\n` +
+        `Student Email: ${studentEmail}\n` +
+        ` Password: ${studentPassword}\n\n` +
+        `To access your account, please visit our portal at http://localhost:5173/ (LOL) and log in using the credentials above.\n\n` +
+        `For security reasons, we recommend changing your password after your first login.\n\n` +
+        `If you have any questions or need assistance, please don't hesitate to contact our support team at support@schoolmate.edu.lk\n\n` +
+        `We wish you a successful academic journey with us!\n\n` +
+        `Best regards,\n` +
+        `The SchoolMate Administration Team\n` +
+        `School of Excellence`;
+
+      window.open(
+        `mailto:${newStudent.personalEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`,
+        '_blank'
+      );
+
       closeAddModal();
     } catch (error) {
       console.error("Error adding student:", error);
+      if (error.response && error.response.status === 409) {
+        setValidationError("This email is already registered to another student.");
+      } else {
+        setValidationError("Failed to add student. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Edit an existing student
   const handleEditStudent = async () => {
     if (!validateForm()) return;
 
     try {
+      setIsLoading(true);
       const response = await axios.put(
         `http://localhost:3000/api/student/update/${selectedStudent._id}`,
         newStudent
@@ -146,18 +200,28 @@ export default function AdminStudent() {
       closeEditModal();
     } catch (error) {
       console.error("Error updating student:", error);
+      if (error.response && error.response.status === 409) {
+        setValidationError("This email is already registered to another student.");
+      } else {
+        setValidationError("Failed to update student. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Delete a student
   const handleDeleteStudent = async (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this student?");
     if (confirmDelete) {
       try {
+        setIsLoading(true);
         await axios.delete(`http://localhost:3000/api/student/delete/${id}`);
         setStudents(students.filter((student) => student._id !== id));
       } catch (error) {
         console.error("Error deleting student:", error);
+        alert("Failed to delete student. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -186,8 +250,8 @@ export default function AdminStudent() {
       {/* Add Student Button */}
       <div className="mt-8 flex justify-center">
         <motion.div whileHover={{ scale: 1.1 }}>
-          <Button onClick={openAddModal} gradientDuoTone="greenToBlue">
-            Add Student
+          <Button onClick={openAddModal} gradientDuoTone="greenToBlue" disabled={isLoading}>
+            {isLoading ? "Loading..." : "Add Student"}
           </Button>
         </motion.div>
       </div>
@@ -198,42 +262,54 @@ export default function AdminStudent() {
         style={{ background: darkMode ? "#1E293B" : "#ffffff" }}
       >
         <h2 className="text-lg font-semibold mb-3">📚 Students List</h2>
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="p-2">Name</th>
-              <th className="p-2">Personal Email</th>
-              <th className="p-2">Age</th>
-              <th className="p-2">Gender</th>
-              <th className="p-2">Grade</th>
-              <th className="p-2">Section</th>
-              <th className="p-2">Student Email</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student) => (
-              <tr key={student._id}>
-                <td className="p-2">{student.name}</td>
-                <td className="p-2">{student.personalEmail}</td>
-                <td className="p-2">{student.age}</td>
-                <td className="p-2">{student.gender}</td>
-                <td className="p-2">{student.grade}</td>
-                <td className="p-2">{student.section}</td>
-                <td className="p-2">{student.studentEmail}</td>
-                <td className="p-2">
-                  <div className="flex">
-                    <Button onClick={() => openEditModal(student)}>Edit</Button>
-                    <Button color="red" onClick={() => handleDeleteStudent(student._id)}>
-                      Delete
-                    </Button>
-                    <Button color="green">View Profile</Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {isLoading ? (
+          <div className="text-center py-4">Loading students...</div>
+        ) : students.length === 0 ? (
+          <div className="text-center py-4">No students found</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="p-2 text-left">Name</th>
+                  <th className="p-2 text-left">Personal Email</th>
+                  <th className="p-2 text-left">Age</th>
+                  <th className="p-2 text-left">Gender</th>
+                  <th className="p-2 text-left">Grade</th>
+                  <th className="p-2 text-left">Section</th>
+                  <th className="p-2 text-left">Student Email</th>
+                  <th className="p-2 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((student) => (
+                  <tr key={student._id} className="border-t">
+                    <td className="p-2">{student.name}</td>
+                    <td className="p-2">{student.personalEmail}</td>
+                    <td className="p-2">{student.age}</td>
+                    <td className="p-2">{student.gender}</td>
+                    <td className="p-2">{student.grade}</td>
+                    <td className="p-2">{student.section}</td>
+                    <td className="p-2">{student.studentEmail}</td>
+                    <td className="p-2">
+                      <div className="flex space-x-2">
+                        <Button size="xs" onClick={() => openEditModal(student)} disabled={isLoading}>
+                          Edit
+                        </Button>
+                        <Button size="xs" color="red" onClick={() => handleDeleteStudent(student._id)} disabled={isLoading}>
+                          Delete
+                        </Button>
+                        <Button size="xs" color="green" disabled={isLoading}>
+                          View Profile
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Student Modal */}
@@ -245,31 +321,43 @@ export default function AdminStudent() {
         <Modal.Header>{isEditModalOpen ? "Edit Student" : "Add New Student"}</Modal.Header>
         <Modal.Body>
           <div className="space-y-4">
-            {/* Validation Error Message */}
-            {validationError && <div className="text-red-500 text-sm mb-4">{validationError}</div>}
+            {validationError && (
+              <div className="text-red-500 text-sm mb-4 p-2 bg-red-50 rounded">
+                {validationError}
+              </div>
+            )}
 
-            <Label>Name</Label>
-            <TextInput
-              type="text"
-              value={newStudent.name}
-              onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
-              className="w-full"
-              required
-            />
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <TextInput
+                id="name"
+                type="text"
+                value={newStudent.name}
+                onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                className="w-full"
+                required
+                disabled={isLoading}
+              />
+            </div>
 
-            <Label>Personal Email</Label>
-            <TextInput
-              type="email"
-              value={newStudent.personalEmail}
-              onChange={(e) => setNewStudent({ ...newStudent, personalEmail: e.target.value })}
-              className="w-full"
-              required
-            />
+            <div>
+              <Label htmlFor="personalEmail">Personal Email</Label>
+              <TextInput
+                id="personalEmail"
+                type="email"
+                value={newStudent.personalEmail}
+                onChange={(e) => setNewStudent({ ...newStudent, personalEmail: e.target.value })}
+                className="w-full"
+                required
+                disabled={isEditModalOpen || isLoading}
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Age</Label>
+                <Label htmlFor="age">Age (1-25)</Label>
                 <TextInput
+                  id="age"
                   type="number"
                   value={newStudent.age}
                   onChange={(e) => setNewStudent({ ...newStudent, age: e.target.value })}
@@ -277,15 +365,18 @@ export default function AdminStudent() {
                   max="25"
                   className="w-full"
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div>
-                <Label>Gender</Label>
+                <Label htmlFor="gender">Gender</Label>
                 <select
+                  id="gender"
                   value={newStudent.gender}
                   onChange={(e) => setNewStudent({ ...newStudent, gender: e.target.value })}
                   className="w-full p-2 border rounded-lg bg-transparent"
                   required
+                  disabled={isLoading}
                 >
                   <option value="">Select Gender</option>
                   <option value="Male">Male</option>
@@ -297,8 +388,9 @@ export default function AdminStudent() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Grade</Label>
+                <Label htmlFor="grade">Grade (1-13)</Label>
                 <TextInput
+                  id="grade"
                   type="number"
                   value={newStudent.grade}
                   onChange={(e) => setNewStudent({ ...newStudent, grade: e.target.value })}
@@ -306,15 +398,18 @@ export default function AdminStudent() {
                   max="13"
                   className="w-full"
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div>
-                <Label>Section</Label>
+                <Label htmlFor="section">Section</Label>
                 <select
+                  id="section"
                   value={newStudent.section}
                   onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })}
                   className="w-full p-2 border rounded-lg bg-transparent"
                   required
+                  disabled={isLoading}
                 >
                   <option value="">Select Section</option>
                   {Array.from({ length: 5 }, (_, i) => (
@@ -328,10 +423,10 @@ export default function AdminStudent() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={isEditModalOpen ? handleEditStudent : handleAddStudent}>
-            {isEditModalOpen ? "Update" : "Add"} Student
+          <Button onClick={isEditModalOpen ? handleEditStudent : handleAddStudent} disabled={isLoading}>
+            {isLoading ? "Processing..." : isEditModalOpen ? "Update" : "Add"} Student
           </Button>
-          <Button color="gray" onClick={isAddModalOpen ? closeAddModal : closeEditModal}>
+          <Button color="gray" onClick={isAddModalOpen ? closeAddModal : closeEditModal} disabled={isLoading}>
             Cancel
           </Button>
         </Modal.Footer>
