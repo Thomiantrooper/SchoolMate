@@ -1,4 +1,4 @@
-export function filterStudents(students, searchTerm, filterGrade, filterSection) {
+export function filterStudents(students, searchTerm, filterGrade, filterSection, filterGender) {
     return students.filter(student => {
         const matchesSearch = searchTerm === "" ||
             student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -15,6 +15,9 @@ export function filterStudents(students, searchTerm, filterGrade, filterSection)
         const matchesSection = filterSection === "" ||
             student.section === filterSection;
 
-        return matchesSearch && matchesGrade && matchesSection;
+        const matchesGender = filterGender === "" ||
+            student.gender === filterGender;
+
+        return matchesSearch && matchesGrade && matchesSection && matchesGender;
     });
 }

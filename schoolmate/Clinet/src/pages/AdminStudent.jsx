@@ -28,6 +28,7 @@ export default function AdminStudent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGrade, setFilterGrade] = useState("");
   const [filterSection, setFilterSection] = useState("");
+  const [filterGender, setFilterGender] = useState("");
 
   useEffect(() => {
     fetchStudents();
@@ -54,7 +55,7 @@ export default function AdminStudent() {
   };
 
   // Filter students using the utility function
-  const filteredStudents = filterStudents(students, searchTerm, filterGrade, filterSection);
+  const filteredStudents = filterStudents(students, searchTerm, filterGrade, filterSection, filterGender);
 
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => {
@@ -266,6 +267,8 @@ export default function AdminStudent() {
         setFilterGrade={setFilterGrade}
         filterSection={filterSection}
         setFilterSection={setFilterSection}
+        filterGender={filterGender}
+        setFilterGender={setFilterGender}
         darkMode={darkMode}
       />
 

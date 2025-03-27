@@ -8,6 +8,8 @@ export default function StudentSearchFilter({
     setFilterGrade,
     filterSection,
     setFilterSection,
+    filterGender,
+    setFilterGender,
     darkMode
 }) {
     return (
@@ -63,38 +65,24 @@ export default function StudentSearchFilter({
                     </select>
                 </div>
 
-                {/* Combined Grade+Section Filter */}
+                {/* Gender Filter */}
                 <div>
-                    <Label>Filter by Class (e.g., 7A)</Label>
-                    <div className="flex">
-                        <select
-                            value={filterGrade}
-                            onChange={(e) => setFilterGrade(e.target.value)}
-                            className="w-1/2 p-2 border rounded-l-lg bg-transparent text-black"
-                        >
-                            <option value="">Grade</option>
-                            {Array.from({ length: 13 }, (_, i) => (
-                                <option key={i} value={i + 1}>{i + 1}</option>
-                            ))}
-                        </select>
-                        <select
-                            value={filterSection}
-                            onChange={(e) => setFilterSection(e.target.value)}
-                            className="w-1/2 p-2 border rounded-r-lg bg-transparent text-black"
-                        >
-                            <option value="">Section</option>
-                            {Array.from({ length: 5 }, (_, i) => (
-                                <option key={i} value={String.fromCharCode(65 + i)}>
-                                    {String.fromCharCode(65 + i)}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <Label>Filter by Gender</Label>
+                    <select
+                        value={filterGender}
+                        onChange={(e) => setFilterGender(e.target.value)}
+                        className="w-full p-2 border rounded-lg bg-transparent text-black"
+                    >
+                        <option value="">All Genders</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
             </div>
 
             {/* Active Filters Display */}
-            {(filterGrade || filterSection || searchTerm) && (
+            {(filterGrade || filterSection || filterGender || searchTerm) && (
                 <div className="mt-3 flex flex-wrap gap-2">
                     {filterGrade && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
@@ -112,6 +100,17 @@ export default function StudentSearchFilter({
                             Section: {filterSection}
                             <button
                                 onClick={() => setFilterSection("")}
+                                className="ml-1 text-green-600 hover:text-green-800"
+                            >
+                                ×
+                            </button>
+                        </span>
+                    )}
+                    {filterGender && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                            Gender: {filterGender}
+                            <button
+                                onClick={() => setFilterGender("")}
                                 className="ml-1 text-green-600 hover:text-green-800"
                             >
                                 ×
