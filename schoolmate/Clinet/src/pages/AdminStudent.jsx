@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Button, Modal, TextInput, Label } from "flowbite-react";
 import { ThemeContext } from "../components/ThemeLayout";
 import axios from "axios";
+import StudentSearchFilter from "../components/StudentSearchFilter";
+import { filterStudents } from "../../../api/utils/studentFilters";
 
 export default function AdminStudent() {
   const { darkMode } = useContext(ThemeContext);
@@ -21,6 +23,12 @@ export default function AdminStudent() {
   const [validationError, setValidationError] = useState("");
   const [nextStudentNumber, setNextStudentNumber] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterGrade, setFilterGrade] = useState("");
+  const [filterSection, setFilterSection] = useState("");
+  const [filterGender, setFilterGender] = useState("");
 
   useEffect(() => {
     fetchStudents();
@@ -45,6 +53,9 @@ export default function AdminStudent() {
       setIsLoading(false);
     }
   };
+
+  // Filter students using the utility function
+  const filteredStudents = filterStudents(students, searchTerm, filterGrade, filterSection, filterGender);
 
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => {
@@ -83,7 +94,6 @@ export default function AdminStudent() {
   };
 
   const validateForm = () => {
-    // Check empty fields
     if (
       !newStudent.name ||
       !newStudent.personalEmail ||
@@ -96,36 +106,24 @@ export default function AdminStudent() {
       return false;
     }
 
-    // Validate email format
     if (!validateEmail(newStudent.personalEmail)) {
       setValidationError("Please enter a valid personal email address.");
       return false;
     }
 
-    // Check if email already exists (only for add mode)
     if (!isEditModalOpen && students.some(student => student.personalEmail === newStudent.personalEmail)) {
       setValidationError("This email is already registered to another student.");
       return false;
     }
 
-    // Validate age range (1-25)
     const age = parseInt(newStudent.age);
-    if (isNaN(age)) {
-      setValidationError("Age must be a number.");
-      return false;
-    }
-    if (age < 1 || age > 25) {
+    if (isNaN(age) || age < 1 || age > 25) {
       setValidationError("Age must be between 1 and 25.");
       return false;
     }
 
-    // Validate grade range (1-13)
     const grade = parseInt(newStudent.grade);
-    if (isNaN(grade)) {
-      setValidationError("Grade must be a number.");
-      return false;
-    }
-    if (grade < 1 || grade > 13) {
+    if (isNaN(grade) || grade < 1 || grade > 13) {
       setValidationError("Grade must be between 1 and 13.");
       return false;
     }
@@ -144,6 +142,7 @@ export default function AdminStudent() {
 
       const studentWithEmail = {
         ...newStudent,
+        grade: parseInt(newStudent.grade),
         studentEmail,
         StudentPassword: studentPassword
       };
@@ -152,20 +151,18 @@ export default function AdminStudent() {
       setStudents([...students, response.data]);
       setNextStudentNumber(nextStudentNumber + 1);
 
-      // Prepare and open email draft
       const emailSubject = "Welcome to SchoolMate - Your Student Account Credentials";
       const emailBody = `Dear ${newStudent.name},\n\n` +
         `Welcome to SchoolMate! We're excited to have you join our learning community.\n\n` +
         `Your student account has been successfully created. Here are your login credentials:\n\n` +
         `Student Email: ${studentEmail}\n` +
-        ` Password: ${studentPassword}\n\n` +
-        `To access your account, please visit our portal at http://localhost:5173/ (LOL) and log in using the credentials above.\n\n` +
+        `Password: ${studentPassword}\n\n` +
+        `To access your account, please visit our portal and log in using the credentials above.\n\n` +
         `For security reasons, we recommend changing your password after your first login.\n\n` +
-        `If you have any questions or need assistance, please don't hesitate to contact our support team at support@schoolmate.edu.lk\n\n` +
+        `If you have any questions or need assistance, please contact our support team.\n\n` +
         `We wish you a successful academic journey with us!\n\n` +
         `Best regards,\n` +
-        `The SchoolMate Administration Team\n` +
-        `School of Excellence`;
+        `The SchoolMate Administration Team`;
 
       window.open(
         `mailto:${newStudent.personalEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`,
@@ -236,25 +233,44 @@ export default function AdminStudent() {
         className="w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md mb-6 bg-opacity-80 transition-all duration-300"
         style={{ background: darkMode ? "#1E293B" : "#ffffff" }}
       >
-        <h1 className="text-2xl font-bold">🎓 Admin Student Panel</h1>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => (window.location.href = "/dashboard?tab=students")}
-          className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-4 py-2 rounded shadow-md"
-        >
-          Back to Students
-        </motion.button>
+        <div>
+          <h1 className="text-2xl font-bold">🎓 Admin Student Panel</h1>
+        </div>
+
+        <div className="flex gap-8">
+          {/* Add Student Button */}
+          <div className="mt-8">
+            <motion.div whileHover={{ scale: 1.1 }}>
+              <Button onClick={openAddModal} gradientDuoTone="greenToBlue" disabled={isLoading}>
+                {isLoading ? "Loading..." : "Add Student"}
+              </Button>
+            </motion.div>
+          </div>
+          <div className="mt-8">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => (window.location.href = "/dashboard?tab=students")}
+              className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-4 py-2 rounded shadow-md"
+            >
+              Back to Students
+            </motion.button>
+          </div>
+        </div>
       </div>
 
-      {/* Add Student Button */}
-      <div className="mt-8 flex justify-center">
-        <motion.div whileHover={{ scale: 1.1 }}>
-          <Button onClick={openAddModal} gradientDuoTone="greenToBlue" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Add Student"}
-          </Button>
-        </motion.div>
-      </div>
+      {/* Search and Filter Component */}
+      <StudentSearchFilter
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterGrade={filterGrade}
+        setFilterGrade={setFilterGrade}
+        filterSection={filterSection}
+        setFilterSection={setFilterSection}
+        filterGender={filterGender}
+        setFilterGender={setFilterGender}
+        darkMode={darkMode}
+      />
 
       {/* Students Table */}
       <div
@@ -264,8 +280,10 @@ export default function AdminStudent() {
         <h2 className="text-lg font-semibold mb-3">📚 Students List</h2>
         {isLoading ? (
           <div className="text-center py-4">Loading students...</div>
-        ) : students.length === 0 ? (
-          <div className="text-center py-4">No students found</div>
+        ) : filteredStudents.length === 0 ? (
+          <div className="text-center py-4">
+            {students.length === 0 ? "No students found" : "No students match your filters"}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -282,7 +300,7 @@ export default function AdminStudent() {
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
+                {filteredStudents.map((student) => (
                   <tr key={student._id} className="border-t">
                     <td className="p-2">{student.name}</td>
                     <td className="p-2">{student.personalEmail}</td>
@@ -393,7 +411,7 @@ export default function AdminStudent() {
                   id="grade"
                   type="number"
                   value={newStudent.grade}
-                  onChange={(e) => setNewStudent({ ...newStudent, grade: e.target.value })}
+                  onChange={(e) => setNewStudent({ ...newStudent, grade: parseInt(e.target.value) || "" })}
                   min="1"
                   max="13"
                   className="w-full"
