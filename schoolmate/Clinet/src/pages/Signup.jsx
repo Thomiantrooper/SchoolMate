@@ -58,9 +58,9 @@ export default function SignUp() {
         <div className="flex-1">
           <Link to="/" className="font-bold dark:text-white text-4xl">
             <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
-             SchoolMate
+              SchoolMate
             </span>
-            
+
           </Link>
           <p className="text-sm mt-5">
             The virtual study area committed for the future
@@ -107,7 +107,7 @@ export default function SignUp() {
                 'Sign Up'
               )}
             </Button>
-          {/* <OAuth /> */}
+            {/* <OAuth /> */}
 
           </form>
           <div className="flex gap-2 text-sm mt-5">

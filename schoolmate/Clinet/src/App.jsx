@@ -4,7 +4,7 @@ import About from "./pages/About";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
-import Header from "./components/Header";
+import Header from "./components/header";
 import Footer from "./components/Footer";
 import ThemeLayout from "./components/ThemeLayout";
 import PrivateRoute from "./components/PrivateRoute";
@@ -25,6 +25,10 @@ import StudentLMS from "./components/StudentLMS";
 import WorkloadBalancer from "./pages/WorkloadBalancer";
 import TeacherScheduler from "./pages/TeacherScheduler";
 import Chatbot from "./pages/Chatbot";
+import AiWork from "./pages/AiWork";
+import StaffSalaryAssign from "./components/StaffSalaryAssign";
+import AdminMaintenance from "./components/AdminMaintenance";
+import AdminIncome from "./components/AdminIncome"
 
 import StaffHeader from "./components/StaffHeader";
 import StaffFooter from "./components/StaffFooter";
@@ -33,12 +37,15 @@ import StaffProfile from "./components/StaffProfile";
 import StaffModule from "./components/StaffModule";
 import StaffPayment from "./components/StaffPayment";
 import StaffContact from "./components/StaffContact";
+import AddIncomePage from "./components/AddIncome";
+import StaffAddBankdetails from "./components/StaffAddBankdetails";
+import Library from "./pages/Library";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
+
         <Route
           path="/*"
           element={
@@ -51,6 +58,8 @@ export default function App() {
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/chat-bot" element={<Chatbot />} />
+
+
 
                 {/* Protected Routes */}
                 <Route element={<PrivateRoute />}>
@@ -65,6 +74,13 @@ export default function App() {
                   <Route path="/lms" element={<StudentLMS />} />
                   <Route path="/ai-workload" element={<WorkloadBalancer />} />
                   <Route path="/teacher-scheduler" element={<TeacherScheduler />} />
+                  <Route path="/ai-schedule" element={<AiWork />} />
+                  <Route path="/assign-salary" element={<StaffSalaryAssign />} />
+                  <Route path="/admin-maintenance" element={<AdminMaintenance />} />
+                  <Route path="/admin-income" element={<AdminIncome />} />
+                  <Route path="/admin-income/add" element={<AddIncomePage />} />
+                  <Route path="/admin-income/add/:incomeId" element={<AddIncomePage />} />
+                  <Route path="/library" element={<Library />} />
                 </Route>
               </Routes>
               <Footer />
@@ -101,6 +117,7 @@ export default function App() {
                 <Route path="/modules" element={<StaffModule />} />
                 <Route path="/payment" element={<StaffPayment />} />
                 <Route path="/contact" element={<StaffContact />} />
+                <Route path="/bank-details" element={<StaffAddBankdetails />} />
               </Routes>
               <StaffFooter />
             </ThemeLayout>
