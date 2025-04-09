@@ -187,14 +187,21 @@ export default function AdminStudent() {
 
     try {
       setIsLoading(true);
-      const response = await axios.put(
-        `http://localhost:3000/api/student/update/${selectedStudent._id}`,
-        newStudent
-      );
-      setStudents(students.map((student) =>
-        student._id === selectedStudent._id ? response.data : student
-      ));
-      closeEditModal();
+    const response = await axios.put(
+      `http://localhost:3000/api/student/update/${selectedStudent._id}`,
+      {
+        name: newStudent.name,
+        age: newStudent.age,
+        gender: newStudent.gender,
+        grade: newStudent.grade,
+        section: newStudent.section,
+      }
+    );
+    
+    setStudents(students.map((student) =>
+      student._id === selectedStudent._id ? response.data : student
+    ));
+    closeEditModal();
     } catch (error) {
       console.error("Error updating student:", error);
       if (error.response && error.response.status === 409) {

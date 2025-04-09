@@ -111,15 +111,25 @@ export const getStudents = async (req, res) => {
 // Update Student
 export const updateStudent = async (req, res) => {
   try {
-    const updatedStudent = await Student.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const { name, age, gender, grade, section } = req.body; // Only allow these fields
 
-    if (!updatedStudent) {
+    // Find the student first
+    const student = await Student.findById(req.params.id);
+    if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
+
+    // Update the User document (only username, not email)
+    if (name) {
+      await User.findByIdAndUpdate(student.userId, { username: name });
+    }
+
+    // Update the Student document (excluding personalEmail)
+    const updatedStudent = await Student.findByIdAndUpdate(
+      req.params.id,
+      { name, age, gender, grade, section }, // Explicitly list updatable fields
+      { new: true, runValidators: true }
+    );
 
     res.status(200).json(updatedStudent);
   } catch (error) {
