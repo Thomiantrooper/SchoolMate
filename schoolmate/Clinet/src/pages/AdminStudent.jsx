@@ -40,12 +40,12 @@ export default function AdminStudent() {
       const response = await axios.get("http://localhost:3000/api/student/all");
       setStudents(response.data);
 
-      const highestStudentNumber = response.data.reduce((max, student) => {
-        const studentNumber = parseInt(student.studentEmail.match(/\d+/)[0], 10);
-        return studentNumber > max ? studentNumber : max;
-      }, -1);
+      // const highestStudentNumber = response.data.reduce((max, student) => {
+      //   const studentNumber = parseInt(student.userId.email.match(/\d+/)[0], 10);
+      //   return studentNumber > max ? studentNumber : max;
+      // }, -1);
 
-      setNextStudentNumber(highestStudentNumber + 1);
+      // setNextStudentNumber(highestStudentNumber + 1);
     } catch (error) {
       console.error("Error fetching students:", error);
       setValidationError("Failed to fetch students. Please try again.");
@@ -137,33 +137,33 @@ export default function AdminStudent() {
 
     try {
       setIsLoading(true);
-      const studentEmail = `std_${String(nextStudentNumber).padStart(2, "0")}@gmail.com`;
-      const studentPassword = studentEmail.split('@')[0];
-
-      const studentWithEmail = {
+      
+      const studentData = {
         ...newStudent,
         grade: parseInt(newStudent.grade),
-        studentEmail,
-        StudentPassword: studentPassword
       };
-
-      const response = await axios.post("http://localhost:3000/api/student/add", studentWithEmail);
-      setStudents([...students, response.data]);
-      setNextStudentNumber(nextStudentNumber + 1);
-
+      
+      const response = await axios.post("http://localhost:3000/api/student/add", studentData);
+      
+      // No need to generate email/password here anymore
+      fetchStudents();
+      //setNextStudentNumber(nextStudentNumber + 1);
+      
+      const { generatedEmail, generatedPassword } = response.data;
+      
       const emailSubject = "Welcome to SchoolMate - Your Student Account Credentials";
       const emailBody = `Dear ${newStudent.name},\n\n` +
         `Welcome to SchoolMate! We're excited to have you join our learning community.\n\n` +
         `Your student account has been successfully created. Here are your login credentials:\n\n` +
-        `Student Email: ${studentEmail}\n` +
-        `Password: ${studentPassword}\n\n` +
+        `Student Email: ${generatedEmail}\n` +
+        `Password: ${generatedPassword}\n\n` +
         `To access your account, please visit our portal and log in using the credentials above.\n\n` +
         `For security reasons, we recommend changing your password after your first login.\n\n` +
         `If you have any questions or need assistance, please contact our support team.\n\n` +
         `We wish you a successful academic journey with us!\n\n` +
         `Best regards,\n` +
         `The SchoolMate Administration Team`;
-
+      
       window.open(
         `mailto:${newStudent.personalEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`,
         '_blank'
@@ -173,7 +173,7 @@ export default function AdminStudent() {
     } catch (error) {
       console.error("Error adding student:", error);
       if (error.response && error.response.status === 409) {
-        setValidationError("This email is already registered to another student.");
+        setValidationError(error.response.data.error); 
       } else {
         setValidationError("Failed to add student. Please try again.");
       }
@@ -300,7 +300,7 @@ export default function AdminStudent() {
                 </tr>
               </thead>
               <tbody>
-                {filteredStudents.map((student) => (
+                {filteredStudents && filteredStudents.map((student) => (
                   <tr key={student._id} className="border-t">
                     <td className="p-2">{student.name}</td>
                     <td className="p-2">{student.personalEmail}</td>
@@ -308,7 +308,7 @@ export default function AdminStudent() {
                     <td className="p-2">{student.gender}</td>
                     <td className="p-2">{student.grade}</td>
                     <td className="p-2">{student.section}</td>
-                    <td className="p-2">{student.studentEmail}</td>
+                    <td className="p-2">{student.userId?.email}</td>
                     <td className="p-2">
                       <div className="flex space-x-2">
                         <Button size="xs" onClick={() => openEditModal(student)} disabled={isLoading}>
