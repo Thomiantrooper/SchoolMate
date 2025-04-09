@@ -1,15 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
 
-// Firebase Configuration
-// Your Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyCjoqG_rrpx0qKB1wqq2Hc06OjCPx0RfnY",
-  authDomain: "schoolmanagementsystem-77516.firebaseapp.com",
-  projectId: "schoolmanagementsystem-77516",
-  storageBucket: "schoolmanagementsystem-77516.firebasestorage.app",
-  messagingSenderId: "335011510224",
-  appId: "1:335011510224:web:714cb5e4d09c2e25952bd5"
+  apiKey: "AIzaSyBgNl73mot-7KGg0Q3_1_N56bKxmwB5d9E",
+  authDomain: "school-sliit.firebaseapp.com",
+  projectId: "school-sliit",
+  storageBucket: "school-sliit.firebasestorage.app",
+  messagingSenderId: "463589008631",
+  appId: "1:463589008631:web:7a0e493fea2c2d66569ff2"
+
 };
 
 // Initialize Firebase
