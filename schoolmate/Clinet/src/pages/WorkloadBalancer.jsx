@@ -248,6 +248,15 @@ const AiWorkDashboard = () => {
               Open Email Client with Task Recommendation
             </button>
           </div>
+
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => navigate('/ai-schedule')}
+              className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded transition-all"
+            >
+              Balance Workload
+            </button>
+          </div>
         </>
       )}
     </div>
