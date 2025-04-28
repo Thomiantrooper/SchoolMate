@@ -52,6 +52,7 @@ app.use('/api/income', Income);
 app.use('/api/student', studentRoute);
 app.use('/api/exam', Exam);
 
+
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
