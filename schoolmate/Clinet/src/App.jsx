@@ -29,6 +29,7 @@ import AiWork from "./pages/AiWork";
 import StaffSalaryAssign from "./components/StaffSalaryAssign";
 import AdminMaintenance from "./components/AdminMaintenance";
 import AdminIncome from "./components/AdminIncome"
+import StaffExam from "./components/StaffExam";
 
 import StaffHeader from "./components/StaffHeader";
 import StaffFooter from "./components/StaffFooter";
@@ -117,6 +118,7 @@ export default function App() {
                 <Route path="/modules" element={<StaffModule />} />
                 <Route path="/payment" element={<StaffPayment />} />
                 <Route path="/contact" element={<StaffContact />} />
+                <Route path="/exam" element={<StaffExam />} />
                 <Route path="/bank-details" element={<StaffAddBankdetails />} />
               </Routes>
               <StaffFooter />

@@ -28,6 +28,7 @@ export default function StaffSidebar() {
         <SidebarButton label="📚 Modules" to="/staff-page/modules?tab=module" active={tab === "module"} />
         <SidebarButton label="💰 Payments" to="/staff-page/payment?tab=payment" active={tab === "payment"} />
         <SidebarButton label="📞 Contacts" to="/staff-page/contact?tab=contact" active={tab === "contact"} />
+        <SidebarButton label="📚📚 Exam" to="/staff-page/exam?tab=exam" active={tab === "exam"} />
       </div>
     </div>
   );
