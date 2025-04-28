@@ -145,7 +145,7 @@ export default function AdminStaffSalary() {
             {staffDetails.length > 0 ? (
               staffDetails.map((staff) => (
                 <tr key={staff._id} className="border-t">
-                  <td className="p-3">{staff.userId || "N/A"}</td>
+                  <td className="p-3">{staff.email.split('@')[0] || "N/A"}</td>
                   <td className="p-3">{staff.name || "N/A"}</td>
                   <td className="p-3">{staff.email || "N/A"}</td>
                   <td className="p-3">{staff.bank || "N/A"}</td>

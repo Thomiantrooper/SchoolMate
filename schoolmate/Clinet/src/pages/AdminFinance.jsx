@@ -1,131 +1,207 @@
-import { useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from 'react';
+import { Bar, Pie } from 'react-chartjs-2';
 import { ThemeContext } from "../components/ThemeLayout"; 
+import axios from 'axios';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
-export default function AdminFinance() {
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
+const Dashboard = () => {
   const { darkMode } = useContext(ThemeContext);
-  const [transactions, setTransactions] = useState([
-    { id: 1, name: "Salary", amount: 5000, type: "income", date: "2025-02-28" },
-    { id: 2, name: "Rent", amount: 1200, type: "expense", date: "2025-02-27" },
-    { id: 3, name: "Groceries", amount: 300, type: "expense", date: "2025-02-26" },
-    { id: 4, name: "Freelance Work", amount: 800, type: "income", date: "2025-02-25" },
-  ]);
+  const [incomeData, setIncomeData] = useState(null);
+  const [maintenanceData, setMaintenanceData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState('March'); // State to store selected month
 
-  const [newTransaction, setNewTransaction] = useState({
-    name: "",
-    amount: "",
-    type: "income",
-    date: "",
-  });
+  // Fetch Income Data from the backend
+  const fetchIncomeData = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/income');
+      const data = response.data.data;
 
-  // Add Transaction
-  const handleAddTransaction = () => {
-    if (!newTransaction.name || !newTransaction.amount || !newTransaction.date) return;
+      // Aggregate income per month
+      const monthlyIncome = {
+        January: 0, February: 0, March: 0, April: 0,
+        May: 0, June: 0, July: 0, August: 0,
+        September: 0, October: 0, November: 0, December: 0
+      };
 
-    setTransactions([...transactions, { ...newTransaction, id: transactions.length + 1, amount: Number(newTransaction.amount) }]);
-    setNewTransaction({ name: "", amount: "", type: "income", date: "" });
+      data.forEach(item => {
+        if (monthlyIncome[item.month] !== undefined) {
+          monthlyIncome[item.month] += item.amount; // Summing income per month
+        }
+      });
+
+      // Convert data into chart format
+      setIncomeData({
+        labels: Object.keys(monthlyIncome), // Months as labels
+        datasets: [
+          {
+            label: "Total Income ($)",
+            data: Object.values(monthlyIncome), // Monthly income values
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+          },
+        ],
+      });
+
+    } catch (err) {
+      setError("Error fetching income data");
+    }
+    setLoading(false);
   };
 
-  // Delete Transaction
-  const handleDeleteTransaction = (id) => {
-    setTransactions(transactions.filter(t => t.id !== id));
+  useEffect(() => {
+    fetchIncomeData();
+  }, []);
+
+  // Fetch Maintenance Data from the backend
+  const fetchMaintenanceData = async (month) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/maintenance/maintenance-payments/${month}`);
+      const payments = response.data.data;
+
+      const paid = payments.filter(payment => payment.paidStatus === true).length;
+      const pending = payments.filter(payment => payment.paidStatus === false).length;
+
+      setMaintenanceData({
+        labels: ['Paid', 'Pending'],
+        datasets: [
+          {
+            data: [paid, pending],
+            backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+            hoverBackgroundColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+          },
+        ],
+      });
+    } catch (err) {
+      setError('Error fetching maintenance data');
+    }
+  };
+
+  useEffect(() => {
+    fetchIncomeData(selectedMonth);
+    fetchMaintenanceData(selectedMonth); // Fetch maintenance data for the selected month
+    setLoading(false);
+  }, [selectedMonth]); // Re-fetch data whenever the selected month changes
+
+  // Handle month selection change
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
   };
 
   return (
-    <div className={`p-6 flex flex-col items-center w-full min-h-screen transition-all duration-300 ${
-      darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-    }`}>
-      
-      {/* Header */}
-      <div className={`w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md mb-6 transition-all duration-300 ${
-        darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-      }`}>
-        <h1 className="text-2xl font-bold">🛠️ Admin Finance Panel</h1>
-        <button 
-          onClick={() => window.location.href = "/dashboard?tab=finance"} 
-          className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-4 py-2 rounded">
-          Back to Dashboard
-        </button>
-      </div>
+    <div className={`p-6 dark:bg-gray-800 dark:text-white ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+      <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
 
-      {/* Add Transaction Form */}
-      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md mb-6 transition-all duration-300 ${
-        darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-      }`}>
-        <h2 className="text-lg font-semibold mb-3">➕ Add New Transaction</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input 
-            type="text" 
-            placeholder="Transaction Name" 
-            value={newTransaction.name} 
-            onChange={(e) => setNewTransaction({ ...newTransaction, name: e.target.value })}
-            className={`border p-2 rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900"}`}
-          />
-          <input 
-            type="number" 
-            placeholder="Amount" 
-            value={newTransaction.amount} 
-            onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
-            className={`border p-2 rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900"}`}
-          />
-          <select 
-            value={newTransaction.type} 
-            onChange={(e) => setNewTransaction({ ...newTransaction, type: e.target.value })}
-            className={`border p-2 rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900"}`}
-          >
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-          <input 
-            type="date" 
-            value={newTransaction.date} 
-            onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
-            className={`border p-2 rounded ${darkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-900"}`}
-          />
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div>
+          {/* Dropdown for month selection */}
+          <div className="mb-6">
+            <label htmlFor="month" className="text-lg font-semibold mr-2">Select Month:</label>
+            <select
+              id="month"
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
+          </div>
+
+          {/* Grid to display charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Income Bar Chart */}
+            <div className={`p-6 dark:bg-gray-800 dark:text-white ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+      <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div>
+          {/* Monthly Income Overview Bar Chart */}
+          <div className={`p-4 border rounded-lg shadow-md  ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+            <h3 className="text-lg font-semibold mb-4">Monthly Income Overview</h3>
+            {incomeData ? (
+              <Bar 
+                data={incomeData} 
+                options={{
+                  responsive: true,
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: "Total Income per Month",
+                    },
+                    legend: {
+                      position: "top",
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                    },
+                  },
+                }} 
+              />
+            ) : (
+              <p>No income data available</p>
+            )}
+          </div>
         </div>
-        <button 
-          onClick={handleAddTransaction} 
-          className="mt-3 bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded">
-          Add Transaction
-        </button>
-      </div>
+      )}
+    </div>
 
-      {/* Transactions Table */}
-      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md transition-all duration-300 ${
-        darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-      }`}>
-        <h2 className="text-lg font-semibold mb-2">📋 Manage Transactions</h2>
-        <table className="w-full border-collapse shadow-md">
-          <thead>
-            <tr className={`${darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-900"}`}>
-              <th className="p-2">Name</th>
-              <th className="p-2">Amount</th>
-              <th className="p-2">Date</th>
-              <th className="p-2">Type</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
-                <td className="p-2 font-semibold">{t.name}</td>
-                <td className="p-2">${t.amount}</td>
-                <td className="p-2">{t.date}</td>
-                <td className={`p-2 ${t.type === "income" ? "text-green-400" : "text-red-400"}`}>
-                  {t.type.charAt(0).toUpperCase() + t.type.slice(1)}
-                </td>
-                <td className="p-2">
-                  <button 
-                    onClick={() => handleDeleteTransaction(t.id)} 
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                    ❌ Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
+            {/* Maintenance Payments Pie Chart */}
+            <div className={`p-4 border rounded-lg shadow-md ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+              <h3 className="text-lg font-semibold mb-4">Maintenance Payments Overview</h3>
+              {maintenanceData ? (
+                <Pie data={maintenanceData} options={{
+                  responsive: true,
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: `Paid vs Pending Payments for ${selectedMonth}`,
+                    },
+                  },
+                }} />
+              ) : (
+                <p>No data available</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Dashboard;

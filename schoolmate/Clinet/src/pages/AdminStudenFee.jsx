@@ -138,7 +138,7 @@ export default function AdminStudentFees() {
           <tbody>
           {filteredFees.map((fee) => (
   <tr key={fee._id} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
-    <td className="p-2">{fee.userId._id}</td>
+    <td className="p-2">{fee.userId ? fee.userId.email.split('@')[0] : "Unknown"}</td>
     <td className="p-2 font-semibold">{fee.userId ? fee.userId.username : "Unknown"}</td>
     <td className="p-2">{fee.userId ? fee.email : "Unknown"}</td>
     <td className="p-2">{fee.grade}</td>

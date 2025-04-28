@@ -11,7 +11,8 @@ export default function AssignSalary() {
 
   // Get the current month and year
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1; // Months are 0-based
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const currentMonthName = monthNames[currentDate.getMonth()]; // Get month name
   const currentYear = currentDate.getFullYear();
 
   // Fetch staff salary details
@@ -43,34 +44,50 @@ export default function AssignSalary() {
   };
 
   // Handle salary update or assignment
-  const handleSalarySubmit = async (staff) => {
-    setLoading(true);
-    try {
-      const salaryData = {
-        userId: staff.userId,
-        salary: salaryInputs[staff.userId]?.salary ?? staff.salary ?? 0,
-        month: currentMonth,
-        year: currentYear,
-      };
+const handleSalarySubmit = async (staff) => {
+  setLoading(true);
+  try {
+    const salaryData = {
+      userId: staff.userId,
+      salary: salaryInputs[staff.userId]?.salary ?? staff.salary ?? 0,
+      month: currentMonthName,
+      year: currentYear,
+    };
 
-      await axios.put("http://localhost:3000/api/salary/update-salary", salaryData);
+    const response = await axios.put("http://localhost:3000/api/salary/update-salary", salaryData);
+    
+    // Handle different successful responses
+    if (response.data.message === "Salary is already paid. Only bank details have been updated.") {
+      alert(response.data.message);
+    } else if (response.data.message === "Salary details updated successfully") {
+      alert("Salary updated successfully!");
+    } else {
       alert("Salary assigned/updated successfully!");
-
-      setStaffList((prevList) =>
-        prevList.map((s) =>
-          s.userId === staff.userId
-            ? { ...s, salary: salaryData.salary }
-            : s
-        )
-      );
-    } catch (error) {
-      console.error("Error submitting salary:", error);
-      alert("Failed to assign/update salary.");
-    } finally {
-      setLoading(false);
     }
-  };
 
+    setStaffList((prevList) =>
+      prevList.map((s) =>
+        s.userId === staff.userId
+          ? { ...s, salary: salaryData.salary }
+          : s
+      )
+    );
+  } catch (error) {
+    console.error("Error submitting salary:", error);
+    // Handle specific error messages from backend
+    if (error.response && error.response.data && error.response.data.error) {
+      if (error.response.data.error.includes("Salary details not found")) {
+        alert("No salary record exists for this month. Please create one first.");
+      } else {
+        alert(error.response.data.error);
+      }
+    } else {
+      alert("Failed to assign/update salary. Please try again.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div
