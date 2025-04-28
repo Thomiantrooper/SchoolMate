@@ -68,58 +68,49 @@ export const updateSalary = async (req, res) => {
     bankDetails.salary = salary;
     await bankDetails.save();
 
-    // ✅ Check if a salary entry already exists for the same user, month, and year
-    let salaryDetails = await StaffSalaryDetails.findOne({ userId, month, year });
+    // Check if a salary entry already exists for the same user, month, and year
+    const salaryDetails = await StaffSalaryDetails.findOne({ userId, month, year });
 
-    if (salaryDetails) {
-      if (salaryDetails.status === "paid") {
-        // ✅ If status is "paid", do NOT update salaryDetails.salary
-        return res.status(200).json({
-          message: "Salary is already paid. Only bank details have been updated.",
-          bankDetails,
-        });
-      }
-
-      // ✅ If status is NOT "paid", update salary details
-      const EPF = {
-        employee: salary * 0.08, 
-        employer: salary * 0.12  
-      };
-      const ETF = salary * 0.03;  
-      const total = salary - EPF.employee;  
-
-      salaryDetails.salary = salary;
-      salaryDetails.EPF = EPF;
-      salaryDetails.ETF = ETF;
-      salaryDetails.total = total;
-      await salaryDetails.save();
-    } else {
-      // ✅ Create a new salary entry if it doesn't exist
-      const EPF = {
-        employee: salary * 0.08, 
-        employer: salary * 0.12  
-      };
-      const ETF = salary * 0.03;  
-      const total = salary - EPF.employee;  
-
-      salaryDetails = new StaffSalaryDetails({
-        userId,
-        salary,
-        EPF,
-        ETF,
-        bonus: 0, 
-        leaveSalary: 0, 
-        total,
-        month,
-        year,
-        status: "pending"
+    if (!salaryDetails) {
+      return res.status(404).json({ 
+        error: "Salary details not found for the specified month and year. Please create a salary record first." 
       });
-      await salaryDetails.save();
     }
 
-    res.status(200).json(salaryDetails);
+    if (salaryDetails.status === "paid") {
+      return res.status(200).json({
+        success: true,
+        message: "Salary is already paid. Only bank details have been updated.",
+        bankDetails,
+      });
+    }
+
+    // Calculate deductions and totals
+    const EPF = {
+      employee: salary * 0.08, 
+      employer: salary * 0.12  
+    };
+    const ETF = salary * 0.03;  
+    const total = salary - EPF.employee;  
+
+    // Update existing salary details
+    salaryDetails.salary = salary;
+    salaryDetails.EPF = EPF;
+    salaryDetails.ETF = ETF;
+    salaryDetails.total = total;
+    await salaryDetails.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Salary details updated successfully",
+      salaryDetails
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error updating salary:", error);
+    res.status(400).json({ 
+      success: false,
+      error: error.message 
+    });
   }
 };
 
@@ -221,20 +212,28 @@ export const getBankDetailsByUserId = async (req, res) => {
 
 export const getAllBankAndSalaryDetails = async (req, res) => {
   try {
-    // Perform aggregation to merge bank details with salary details
     const bankAndSalaryDetails = await StaffBankDetails.aggregate([
       {
         $lookup: {
-          from: "staffsalarydetails", // The name of the collection for salary details (plural form)
-          localField: "userId", // The field to match in the bank details collection
-          foreignField: "userId", // The field to match in the salary details collection
-          as: "salaryDetails" // Alias for the merged data
+          from: "staffsalarydetails",
+          localField: "userId",
+          foreignField: "userId",
+          as: "salaryDetails"
         }
       },
+      { $unwind: { path: "$salaryDetails", preserveNullAndEmptyArrays: true } },
       {
-        $unwind: {
-          path: "$salaryDetails", // Unwind the salaryDetails array to have a single object
-          preserveNullAndEmptyArrays: true // If no salary details are found, preserve the bank details
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          email: "$user.email"
         }
       }
     ]);

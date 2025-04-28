@@ -155,7 +155,7 @@ export const makePayment = async (req, res, next) => {
   export const getPayments = async (req, res, next) => {
     try {
       const payments = await Payment.find()
-        .populate("userId", "username email") // Populate the userId with username and email
+        .populate("userId", "username email studentEmail") // Populate the userId with username and email
         .exec();
       res.json(payments);
     } catch (error) {
