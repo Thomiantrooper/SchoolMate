@@ -17,7 +17,7 @@ import Income from './routes/Income.js'
 import "./cronJob.js";
 import Exam from './routes/exam.route.js'
 import studentRoute from './routes/studentRoute.js';
-
+import homeworkRoutes from "./routes/Homework.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -51,6 +51,7 @@ app.use('/api/maintenance', Maintenance);
 app.use('/api/income', Income);
 app.use('/api/student', studentRoute);
 app.use('/api/exam', Exam);
+app.use("/api/homework", homeworkRoutes);
 
 
 // Error Handling Middleware
