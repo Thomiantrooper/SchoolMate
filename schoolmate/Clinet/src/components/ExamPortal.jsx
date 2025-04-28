@@ -5,6 +5,10 @@ export default function ExamPortal() {
   const [bookmarkedExams, setBookmarkedExams] = useState([]);
   const [completedExams, setCompletedExams] = useState([]);
   const [practiceScores, setPracticeScores] = useState({});
+  const [questionnaire, setQuestionnaire] = useState(null);
+  const [theme, setTheme] = useState('light'); // Light/Dark mode state
+  const [examProgress, setExamProgress] = useState({}); // Progress tracker state
+  const [examFilter, setExamFilter] = useState('All'); // Filter exams by status
 
   const exams = [
     { id: 1, subject: 'Mathematics', date: '2025-05-10', time: '10:00 AM', status: 'Upcoming' },
@@ -13,14 +17,31 @@ export default function ExamPortal() {
     { id: 4, subject: 'Biology', date: '2025-05-05', time: '11:00 AM', status: 'Missed' },
   ];
 
+  // Fetch questionnaire data
+  useEffect(() => {
+    const fetchQuestionnaire = async () => {
+      try {
+        const response = await fetch('https://your-api.com/questionnaire'); // Example API URL
+        const data = await response.json();
+        setQuestionnaire(data);
+      } catch (error) {
+        console.error('Error fetching questionnaire:', error);
+      }
+    };
+
+    fetchQuestionnaire();
+  }, []);
+
   // Load from localStorage
   useEffect(() => {
     const storedBookmarks = JSON.parse(localStorage.getItem('bookmarkedExams')) || [];
     const storedCompleted = JSON.parse(localStorage.getItem('completedExams')) || [];
     const storedScores = JSON.parse(localStorage.getItem('practiceScores')) || {};
+    const storedProgress = JSON.parse(localStorage.getItem('examProgress')) || {};
     setBookmarkedExams(storedBookmarks);
     setCompletedExams(storedCompleted);
     setPracticeScores(storedScores);
+    setExamProgress(storedProgress);
   }, []);
 
   // Save to localStorage
@@ -28,12 +49,32 @@ export default function ExamPortal() {
     localStorage.setItem('bookmarkedExams', JSON.stringify(bookmarkedExams));
     localStorage.setItem('completedExams', JSON.stringify(completedExams));
     localStorage.setItem('practiceScores', JSON.stringify(practiceScores));
-  }, [bookmarkedExams, completedExams, practiceScores]);
+    localStorage.setItem('examProgress', JSON.stringify(examProgress));
+  }, [bookmarkedExams, completedExams, practiceScores, examProgress]);
 
-  const filteredExams = exams.filter(exam =>
+  // Filter exams based on status
+  const filteredExams = exams.filter(exam => 
+    examFilter === 'All' || exam.status === examFilter
+  ).filter(exam =>
     exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Switch theme (light/dark mode)
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.body.classList.toggle('dark', newTheme === 'dark');
+  };
+
+  // Exam progress tracker
+  const updateProgress = (examId, score) => {
+    setExamProgress(prev => ({
+      ...prev,
+      [examId]: { ...prev[examId], score: score, attempts: (prev[examId]?.attempts || 0) + 1 }
+    }));
+  };
+
+  // Get status color
   const getStatusColor = (status) => {
     switch (status) {
       case 'Upcoming':
@@ -64,6 +105,7 @@ export default function ExamPortal() {
   const takePracticeTest = (examId) => {
     const score = Math.floor(Math.random() * 100) + 1;
     setPracticeScores(prev => ({ ...prev, [examId]: score }));
+    updateProgress(examId, score);
     alert(`Practice Test Completed! You scored: ${score}%`);
   };
 
@@ -72,25 +114,25 @@ export default function ExamPortal() {
       setBookmarkedExams([]);
       setCompletedExams([]);
       setPracticeScores({});
+      setExamProgress({});
       localStorage.clear();
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-100 to-indigo-200 p-8 font-sans flex flex-col items-center">
+    <div className={`min-h-screen p-8 font-sans flex flex-col items-center ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-gradient-to-r from-purple-100 to-indigo-200'}`}>
       <div className="w-full max-w-7xl">
         <h1 className="text-5xl font-bold text-center text-indigo-700 mb-8">📝 Exam Portal</h1>
-        <p className="text-center text-gray-600 mb-10 text-lg">
-          Manage your exams, bookmark favorites, take practice tests and track your performance.
-        </p>
-
-        {/* Actions */}
-        <div className="flex flex-wrap justify-center gap-6 mb-10">
+        
+        <div className="flex justify-center gap-6 mb-10">
           <button className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md transition-all">
             View All Exams
           </button>
           <button onClick={clearAllData} className="px-6 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold shadow-md transition-all">
             Clear All Data
+          </button>
+          <button onClick={toggleTheme} className="px-6 py-3 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white font-semibold shadow-md transition-all">
+            Toggle Theme
           </button>
         </div>
 
@@ -103,6 +145,34 @@ export default function ExamPortal() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-96 px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
           />
+        </div>
+
+        {/* Exam Filter */}
+        <div className="flex justify-center gap-4 mb-12">
+          <button
+            onClick={() => setExamFilter('All')}
+            className={`px-6 py-2 rounded-xl ${examFilter === 'All' ? 'bg-blue-500' : 'bg-blue-300'} text-white font-semibold`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setExamFilter('Upcoming')}
+            className={`px-6 py-2 rounded-xl ${examFilter === 'Upcoming' ? 'bg-blue-500' : 'bg-blue-300'} text-white font-semibold`}
+          >
+            Upcoming
+          </button>
+          <button
+            onClick={() => setExamFilter('Completed')}
+            className={`px-6 py-2 rounded-xl ${examFilter === 'Completed' ? 'bg-green-500' : 'bg-green-300'} text-white font-semibold`}
+          >
+            Completed
+          </button>
+          <button
+            onClick={() => setExamFilter('Missed')}
+            className={`px-6 py-2 rounded-xl ${examFilter === 'Missed' ? 'bg-red-500' : 'bg-red-300'} text-white font-semibold`}
+          >
+            Missed
+          </button>
         </div>
 
         {/* Bookmarked Exams */}
@@ -169,8 +239,8 @@ export default function ExamPortal() {
 
                 <div className="mb-6">
                   <h2 className="text-xl font-bold text-indigo-600 mb-2">{exam.subject}</h2>
-                  <span className={`px-3 py-1 text-xs font-bold rounded-full text-white ${getStatusColor(completedExams.includes(exam.id) ? 'Completed' : exam.status)}`}>
-                    {completedExams.includes(exam.id) ? 'Completed' : exam.status}
+                  <span className={`px-3 py-1 text-xs font-bold rounded-full text-white ${getStatusColor(exam.status)}`}>
+                    {exam.status}
                   </span>
                 </div>
 
@@ -186,6 +256,17 @@ export default function ExamPortal() {
             <p className="text-center text-gray-500 mt-10">No exams found for your search.</p>
           )}
         </div>
+
+        {/* Questionnaire Section */}
+        {questionnaire && (
+          <div className="mt-16 p-6 bg-white rounded-2xl shadow-md">
+            <h2 className="text-3xl font-semibold text-center text-indigo-700 mb-8">📋 Questionnaire</h2>
+            <div>
+              <p><strong>Question:</strong> {questionnaire.question}</p>
+              <p><strong>Options:</strong> {questionnaire.options.join(', ')}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
