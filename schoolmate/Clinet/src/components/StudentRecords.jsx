@@ -12,6 +12,7 @@ const StudentRecords = () => {
   const [studentsPerPage] = useState(5);
   const [showDetails, setShowDetails] = useState(false);
   const [showAddStudentForm, setShowAddStudentForm] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); // Dark mode state
 
   // Load from localStorage or set dummy data
   useEffect(() => {
@@ -24,6 +25,8 @@ const StudentRecords = () => {
         { id: 2, name: "Jane Smith", grade: "B+", attendance: "90%", active: true, imageUrl: "https://via.placeholder.com/50", age: 22, location: "Kandy", performance: "Good", enrollmentDate: "2022-11-05" },
         { id: 3, name: "Alice Johnson", grade: "A-", attendance: "92%", active: false, imageUrl: "https://via.placeholder.com/50", age: 19, location: "Galle", performance: "Excellent", enrollmentDate: "2023-03-14" },
         // More sample students
+        { id: 4, name: "Bob Brown", grade: "B", attendance: "85%", active: true, imageUrl: "https://via.placeholder.com/50", age: 21, location: "Negombo", performance: "Good", enrollmentDate: "2022-09-30" },
+        { id: 5, name: "Mary White", grade: "C+", attendance: "78%", active: false, imageUrl: "https://via.placeholder.com/50", age: 23, location: "Kurunegala", performance: "Average", enrollmentDate: "2021-08-12" },
       ]);
     }
   }, []);
@@ -119,23 +122,86 @@ const StudentRecords = () => {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1100px", margin: "0 auto" }}>
+    <div style={{
+      padding: "20px",
+      maxWidth: "1100px",
+      margin: "0 auto",
+      backgroundColor: darkMode ? "#121212" : "#ffffff",
+      color: darkMode ? "#ffffff" : "#000000",
+      transition: "all 0.3s ease"
+    }}>
       <h2 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "20px" }}>🎓 Student Records</h2>
 
+      {/* Dark mode toggle button */}
+      <button 
+        onClick={() => setDarkMode(!darkMode)} 
+        style={{
+          padding: "8px 20px",
+          marginBottom: "20px",
+          backgroundColor: darkMode ? "#f44336" : "#4CAF50",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px",
+        }}
+      >
+        Toggle Dark Mode
+      </button>
+
       {/* Search, Sort, Filter */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", marginBottom: "20px" }}>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        marginBottom: "20px",
+        backgroundColor: darkMode ? "#333333" : "#f9f9f9",
+        padding: "10px",
+        borderRadius: "8px"
+      }}>
         <input
           type="text"
           placeholder="Search by name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ padding: "8px", width: "40%", minWidth: "200px" }}
+          style={{
+            padding: "8px",
+            width: "40%",
+            minWidth: "200px",
+            backgroundColor: darkMode ? "#555555" : "#fff",
+            color: darkMode ? "#fff" : "#000",
+            border: "1px solid #ccc",
+            borderRadius: "5px"
+          }}
         />
         <div style={{ marginTop: "10px" }}>
-          <button onClick={() => handleSort('name')} style={{ marginRight: "10px", padding: "8px" }}>Sort by Name</button>
-          <button onClick={() => handleSort('grade')} style={{ padding: "8px" }}>Sort by Grade</button>
+          <button onClick={() => handleSort('name')} style={{
+            marginRight: "10px", 
+            padding: "8px", 
+            backgroundColor: darkMode ? "#333" : "#f44336", 
+            color: "#fff", 
+            border: "none", 
+            borderRadius: "5px"
+          }}>
+            Sort by Name
+          </button>
+          <button onClick={() => handleSort('grade')} style={{
+            padding: "8px", 
+            backgroundColor: darkMode ? "#333" : "#f44336", 
+            color: "#fff", 
+            border: "none", 
+            borderRadius: "5px"
+          }}>
+            Sort by Grade
+          </button>
         </div>
-        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={{ marginTop: "10px", padding: "8px" }}>
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={{
+          marginTop: "10px",
+          padding: "8px",
+          backgroundColor: darkMode ? "#555" : "#fff",
+          color: darkMode ? "#fff" : "#000",
+          border: "1px solid #ccc",
+          borderRadius: "5px"
+        }}>
           <option value="All">All Students</option>
           <option value="Active">Active Only</option>
           <option value="Inactive">Inactive Only</option>
@@ -148,153 +214,120 @@ const StudentRecords = () => {
           <AddStudentForm onSubmit={handleAddStudent} />
         </div>
       ) : (
-        <button onClick={() => setShowAddStudentForm(true)} style={{ padding: "10px 20px", marginBottom: "20px" }}>
+        <button onClick={() => setShowAddStudentForm(true)} style={{
+          padding: "10px 20px",
+          marginBottom: "20px",
+          backgroundColor: darkMode ? "#4CAF50" : "#2196F3",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px"
+        }}>
           Add New Student
         </button>
       )}
 
       {/* Student Records Box */}
-      <div style={{ border: "1px solid #ddd", padding: "20px", borderRadius: "10px", marginBottom: "20px", backgroundColor: "#f9f9f9" }}>
+      <div style={{
+        border: "1px solid #ddd",
+        padding: "20px",
+        borderRadius: "10px",
+        marginBottom: "20px",
+        backgroundColor: darkMode ? "#333333" : "#f9f9f9"
+      }}>
         <h3>🔍 Search and Filter</h3>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px"
+        }}>
           <input
             type="text"
             placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ padding: "8px", width: "40%" }}
+            style={{
+              padding: "8px",
+              width: "40%",
+              backgroundColor: darkMode ? "#555" : "#fff",
+              color: darkMode ? "#fff" : "#000",
+              border: "1px solid #ccc",
+              borderRadius: "5px"
+            }}
           />
-          <button onClick={clearAllRecords} style={{ padding: "8px 20px", backgroundColor: "#f44336", color: "#fff", border: "none", borderRadius: "5px" }}>
-            Clear All Records
+          <button onClick={clearAllRecords} style={{
+            padding: "8px 20px",
+            backgroundColor: "#f44336",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+          }}>
+            Clear All
           </button>
         </div>
-      </div>
-
-      {/* Table */}
-      <table border="1" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f2f2f2" }}>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Grade</th>
-            <th>Attendance</th>
-            <th>Status</th>
-            <th>Age</th>
-            <th>Location</th>
-            <th>Performance</th>
-            <th>Enrollment Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentStudents.map((student) => (
-            <tr key={student.id}>
-              <td>{student.id}</td>
-              <td>
-                <img src={student.imageUrl} alt={student.name} style={{ borderRadius: "50%", width: "40px", height: "40px", marginRight: "10px" }} />
-                {student.name}
-              </td>
-              <td>{student.grade}</td>
-              <td>{student.attendance}</td>
-              <td>{student.active ? "✅ Active" : "❌ Inactive"}</td>
-              <td>{student.age}</td>
-              <td>{student.location}</td>
-              <td>{student.performance}</td>
-              <td>{student.enrollmentDate}</td>
-              <td>
-                <button onClick={() => handleStartEditing(student.id)}>Edit</button>
-                <button onClick={() => handleDeleteStudent(student.id)}>Delete</button>
-              </td>
+        <table style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginBottom: "20px"
+        }}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Grade</th>
+              <th>Attendance</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentStudents.map(student => (
+              <tr key={student.id}>
+                <td>{student.id}</td>
+                <td>{student.name}</td>
+                <td>{student.grade}</td>
+                <td>{student.attendance}</td>
+                <td>{student.active ? "Active" : "Inactive"}</td>
+                <td>
+                  <button onClick={() => handleDeleteStudent(student.id)} style={{
+                    padding: "5px 10px", backgroundColor: "#f44336", color: "#fff", border: "none", borderRadius: "5px", marginRight: "10px"
+                  }}>
+                    Delete
+                  </button>
+                  <button onClick={() => handleStartEditing(student.id)} style={{
+                    padding: "5px 10px", backgroundColor: "#4CAF50", color: "#fff", border: "none", borderRadius: "5px"
+                  }}>
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {/* Pagination */}
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-        <span> Page {currentPage} of {totalPages} </span>
-        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
-      </div>
-
-      {/* Summary Box */}
-      <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ddd", borderRadius: "10px", backgroundColor: "#f9f9f9", textAlign: "center" }}>
-        <h3>Average Attendance: {calculateAverageAttendance()}%</h3>
-        <div>
-          <button onClick={exportToCSV} style={{ padding: "10px 20px", marginRight: "10px" }}>Export to CSV</button>
+        {/* Pagination */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+          <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} style={{ padding: "10px", backgroundColor: "#2196F3", color: "#fff", border: "none", borderRadius: "5px", margin: "0 5px" }}>
+            Previous
+          </button>
+          <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} style={{ padding: "10px", backgroundColor: "#2196F3", color: "#fff", border: "none", borderRadius: "5px", margin: "0 5px" }}>
+            Next
+          </button>
         </div>
+
+        <h4>Average Attendance: {calculateAverageAttendance()}%</h4>
+
+        {/* Export to CSV */}
+        <button onClick={exportToCSV} style={{
+          padding: "10px 20px",
+          backgroundColor: "#4CAF50",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px"
+        }}>
+          Export to CSV
+        </button>
       </div>
     </div>
-  );
-};
-
-// AddStudentForm Component
-const AddStudentForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [grade, setGrade] = useState('');
-  const [attendance, setAttendance] = useState('');
-  const [age, setAge] = useState('');
-  const [location, setLocation] = useState('');
-  const [performance, setPerformance] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newStudent = { name, grade, attendance, age, location, performance, enrollmentDate: new Date().toISOString() };
-    onSubmit(newStudent);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-        style={{ padding: "8px", marginRight: "10px", marginBottom: "10px" }}
-      />
-      <input
-        type="text"
-        placeholder="Grade"
-        value={grade}
-        onChange={(e) => setGrade(e.target.value)}
-        required
-        style={{ padding: "8px", marginRight: "10px", marginBottom: "10px" }}
-      />
-      <input
-        type="text"
-        placeholder="Attendance"
-        value={attendance}
-        onChange={(e) => setAttendance(e.target.value)}
-        required
-        style={{ padding: "8px", marginRight: "10px", marginBottom: "10px" }}
-      />
-      <input
-        type="number"
-        placeholder="Age"
-        value={age}
-        onChange={(e) => setAge(e.target.value)}
-        required
-        style={{ padding: "8px", marginRight: "10px", marginBottom: "10px" }}
-      />
-      <input
-        type="text"
-        placeholder="Location"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        required
-        style={{ padding: "8px", marginRight: "10px", marginBottom: "10px" }}
-      />
-      <input
-        type="text"
-        placeholder="Performance"
-        value={performance}
-        onChange={(e) => setPerformance(e.target.value)}
-        required
-        style={{ padding: "8px", marginRight: "10px", marginBottom: "10px" }}
-      />
-      <button type="submit" style={{ padding: "10px 20px" }}>Add Student</button>
-    </form>
   );
 };
 

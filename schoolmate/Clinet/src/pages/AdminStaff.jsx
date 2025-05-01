@@ -117,7 +117,8 @@ export default function AdminStaff() {
             { name: "📅 Teacher Scheduler", path: "/teacher-scheduler" },
             { name: "📝 Leave Management", path: "/leave-request" },
             { name: "📖 LMS", path: "/lms" },
-            { name: "🤖 AI Workload Balancer", path: "/ai-workload" }
+            { name: "🤖 AI Workload Balancer", path: "/ai-workload" },
+            { name: "👨‍🏫 Adding staff", path: "/staff-add" }
           ].map((item, index) => (
             <motion.button
               key={index}
