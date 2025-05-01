@@ -57,33 +57,61 @@ export const getMaintenancePayments = async (req, res) => {
 
 // Update payment status and details
 export const updateMaintenancePayment = async (req, res) => {
-    try {
+  try {
       // Use multer to handle the file upload
       upload.single('paymentSlipImage')(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({ message: 'Error uploading file', error: err });
-        }
-  
-        const { paymentId } = req.params;
-        const { name, amount, paymentType, date, month, paidStatus } = req.body;
-        const paymentSlipImage = req.file ? req.file.path : ''; // Get file path if uploaded
-  
-        const updatedPayment = await MaintenancePayment.findByIdAndUpdate(
-          paymentId,
-          { name, amount, paymentType, date, month, paidStatus, paymentSlipImage },
-          { new: true }
-        );
-  
-        if (!updatedPayment) {
-          return res.status(404).json({ message: 'Payment not found' });
-        }
-  
-        res.status(200).json({ message: 'Payment updated successfully', data: updatedPayment });
+          if (err) {
+              return res.status(400).json({ message: 'Error uploading file', error: err });
+          }
+
+          const { paymentId } = req.params;
+          const { name, amount, paymentType, date, month, paidStatus, removeImage } = req.body;
+          
+          // Get the existing payment first
+          const existingPayment = await MaintenancePayment.findById(paymentId);
+          if (!existingPayment) {
+              return res.status(404).json({ message: 'Payment not found' });
+          }
+
+          // Handle the payment slip image
+          let paymentSlipImage;
+          if (removeImage === 'true') {
+              // If removeImage is true, set to empty string to remove
+              paymentSlipImage = '';
+          } else if (req.file) {
+              // If new file uploaded, use its path
+              paymentSlipImage = req.file.path;
+          } else {
+              // Otherwise keep the existing image
+              paymentSlipImage = existingPayment.paymentSlipImage;
+          }
+
+          const updatedPayment = await MaintenancePayment.findByIdAndUpdate(
+              paymentId,
+              { 
+                  name, 
+                  amount, 
+                  paymentType, 
+                  date, 
+                  month, 
+                  paidStatus, 
+                  paymentSlipImage 
+              },
+              { new: true }
+          );
+
+          res.status(200).json({ 
+              message: 'Payment updated successfully', 
+              data: updatedPayment 
+          });
       });
-    } catch (err) {
-      res.status(500).json({ message: 'Error updating payment record', error: err });
-    }
-  };
+  } catch (err) {
+      res.status(500).json({ 
+          message: 'Error updating payment record', 
+          error: err 
+      });
+  }
+};
 
 // Delete a payment record
 export const deleteMaintenancePayment = async (req, res) => {

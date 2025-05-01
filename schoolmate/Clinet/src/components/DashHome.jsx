@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { useDispatch } from "react-redux";
 import { db, collection, addDoc } from "../pages/firebaseConfig";
 import { ThemeContext } from "./ThemeLayout"; 
+import { useNavigate } from "react-router-dom"; // <-- Import useNavigate
 
 export default function DashHome() {
   const dispatch = useDispatch();
   const { darkMode } = useContext(ThemeContext); 
+  const navigate = useNavigate(); // <-- Initialize navigate
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: "", age: "", grade: "", section: "" });
@@ -38,9 +40,15 @@ export default function DashHome() {
       return;
     }
 
-    await addDoc(collection(db, "students"), { ...newStudent });
-    alert("Student added successfully!");
-    closeAddModal();
+    try {
+      await addDoc(collection(db, "students"), { ...newStudent });
+      alert("Student added successfully!");
+      closeAddModal();
+      navigate("/admin-student"); // <-- Redirect after adding
+    } catch (error) {
+      console.error("Error adding student:", error);
+      alert("Failed to add student. Please try again.");
+    }
   };
 
   return (
@@ -92,9 +100,10 @@ export default function DashHome() {
       {/* Add Student Button */}
       <div className="mt-8 flex justify-center">
         <motion.div whileHover={{ scale: 1.1 }}>
-          <Button onClick={openAddModal} gradientDuoTone="greenToBlue">
-            Add Student
-          </Button>
+        <Button onClick={() => navigate("/admin-student")} gradientDuoTone="greenToBlue">
+  Add Student
+</Button>
+
         </motion.div>
       </div>
 

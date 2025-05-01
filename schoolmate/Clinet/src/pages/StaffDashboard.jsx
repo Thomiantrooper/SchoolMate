@@ -5,6 +5,7 @@ import StaffSidebar from "../components/StaffSidebar";
 import StaffModule from "../components/StaffModule";
 import StaffPayment from "../components/StaffPayment";
 import StaffContact from "../components/StaffContact";
+import StaffLeave from "../components/StaffLeave";
 
 // A simple function to return the time of day greeting
 const getTimeOfDayGreeting = () => {
@@ -122,6 +123,7 @@ export default function StaffDashboard() {
               {tab === "module" && <StaffModule />}
               {tab === "payment" && <StaffPayment />}
               {tab === "contact" && <StaffContact />}
+              {tab === "staff-leave" && <StaffLeave />}
             </div>
           </div>
         ) : (

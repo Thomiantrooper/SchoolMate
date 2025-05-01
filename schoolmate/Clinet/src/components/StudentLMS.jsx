@@ -27,6 +27,7 @@ const modules = [
   }
 ];
 
+
 const StudentLMS = () => {
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState([]);
@@ -169,20 +170,30 @@ const StudentLMS = () => {
       </div>
 
       {/* Message to Teacher */}
-      <div className="mt-8 flex items-center space-x-4">
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Quickly message the teacher..."
-          className="p-4 w-80 h-24 border rounded-lg shadow-md bg-gray-800 text-white border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={handleMessageSend}
-          className="mt-3 p-3 bg-orange-600 text-white rounded-lg shadow-md"
-        >
-          Send Message to Teacher
-        </button>
-      </div>
+      <div className="mt-8 flex flex-col items-center space-y-4">
+  <div className="flex items-center space-x-4">
+    <textarea
+      value={message}
+      onChange={(e) => setMessage(e.target.value)}
+      placeholder="Quickly message the teacher..."
+      className="p-4 w-80 h-24 border rounded-lg shadow-md bg-gray-800 text-white border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <button
+      onClick={handleMessageSend}
+      className="p-3 bg-orange-600 text-white rounded-lg shadow-md"
+    >
+      Send Message to Teacher
+    </button>
+  </div>
+
+  <button
+    onClick={() => navigate("/library")} // Navigate to /library page
+    className="px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md hover:bg-yellow-600 transition"
+  >
+    📖 Go to Library
+  </button>
+</div>
+
 
       <h3 className="mt-8 text-2xl font-semibold text-white">⭐ Starred Videos</h3>
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -226,15 +237,6 @@ const StudentLMS = () => {
             ))
         ))}
       </div>
-      
-      <button
-        onClick={() => navigate("/library")} // Navigate to /library page
-        className="mt-6 px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md hover:bg-yellow-600 transition"
-      >
-        📖 Go to Library
-      </button>
-
-
     </div>
   );
 };

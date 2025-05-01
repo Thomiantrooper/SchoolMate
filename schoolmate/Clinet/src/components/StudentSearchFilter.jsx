@@ -25,7 +25,7 @@ export default function StudentSearchFilter({
                     <Label>Search Students</Label>
                     <TextInput
                         type="text"
-                        placeholder="Name, Personal Email, or Student Email"
+                        placeholder="Name, Email, or School_Email_provided"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
