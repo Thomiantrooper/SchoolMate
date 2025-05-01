@@ -33,14 +33,15 @@ export default function AssignSalary() {
     const fetchStaffDetails = async () => {
       try {
         setFetching(true);
-        const response = await axios.get("http://localhost:3000/api/salary");
+        const response = await axios.get("http://localhost:3000/api/salary/bank");
         setStaffList(response.data);
         
         // Initialize salary inputs with existing values
         const initialInputs = {};
         response.data.forEach(staff => {
           if (staff.salary) {
-            initialInputs[staff.userId] = { salary: staff.salary };
+            initialInputs[staff.userId._id || staff.userId] = { salary: staff.salary };
+
           }
         });
         setSalaryInputs(initialInputs);
@@ -56,10 +57,11 @@ export default function AssignSalary() {
   }, []);
 
   const handleSalaryChange = (userId, value) => {
-    setSalaryInputs(prev => ({
-      ...prev,
-      [userId]: { salary: value }
-    }));
+    const id = userId._id || userId;
+setSalaryInputs(prev => ({
+  ...prev,
+  [id]: { salary: value }
+}));
   };
 
   const handleSalarySubmit = async (staff) => {
@@ -68,7 +70,9 @@ export default function AssignSalary() {
     setSuccess(null);
     
     try {
-      const salaryValue = salaryInputs[staff.userId]?.salary || staff.salary || 0;
+      const id = staff.userId._id || staff.userId;
+const salaryValue = salaryInputs[id]?.salary || staff.salary || 0;
+
       
       const salaryData = {
         userId: staff.userId,
@@ -189,27 +193,37 @@ export default function AssignSalary() {
                               {staff.name || 'N/A'}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {formatStaffId(staff.email)}
+                              {formatStaffId(staff.userId.email)}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {staff.email || 'N/A'}
+                              {staff.userId.email || 'N/A'}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="relative">
-                          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            className={`pl-8 p-2 border rounded-lg w-32 ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
-                            value={salaryInputs[staff.userId]?.salary ?? staff.salary ?? ''}
-                            onChange={(e) => handleSalaryChange(staff.userId, e.target.value)}
-                            placeholder="0.00"
-                          />
-                        </div>
+                      <div className="relative">
+  <span className="absolute inset-y-0 left-2 flex items-center text-gray-500 pointer-events-none">
+    LKR
+  </span>
+  <input
+    type="number"
+    min="0"
+    step="0.01"
+    className={`pl-12 pr-2 py-2 border rounded-lg w-32 
+      ${darkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-black"}`}
+    value={
+      salaryInputs[staff.userId._id || staff.userId]?.salary !== undefined
+        ? salaryInputs[staff.userId._id || staff.userId]?.salary
+        : staff.salary ?? ''
+    }
+    onChange={(e) => handleSalaryChange(staff.userId, e.target.value)}
+    placeholder="0.00"
+  />
+</div>
+
+
+
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
