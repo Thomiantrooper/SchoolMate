@@ -4,7 +4,7 @@ import StaffBankDetails from "./model/StaffBankDetails.js";
 import moment from "moment";
 
 // Schedule the job to run at midnight on the 10th of every month
-cron.schedule("0 0 17 * *", async () => {
+cron.schedule("0 0 10 * *", async () => {
   try {
     console.log("Running Salary Recreation Job...");
 
