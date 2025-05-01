@@ -6,7 +6,8 @@ import {
   updateBankDetails,
   getBankDetailsByUserId,
   getAllBankAndSalaryDetails,
-  getBankAndSalaryDetailsById
+  getBankAndSalaryDetailsById,
+  getAllBankDetails
 
 } from "../controllers/StaffBankSalaryDetails.js";
 import multer from "multer";
@@ -37,6 +38,9 @@ router.put("/update-bonus-leave", updateBonusAndLeaveSalary);
 router.put("/:userId", upload.single("passbookImage"), updateBankDetails);
 
 
+router.get('/bank', getAllBankDetails);
+
+
 router.get("/:userId", getBankDetailsByUserId);
 
 
@@ -44,6 +48,7 @@ router.get("/", getAllBankAndSalaryDetails);
 
 
 router.get('/bank-salary-details/:userId', getBankAndSalaryDetailsById);
+
 
 
 

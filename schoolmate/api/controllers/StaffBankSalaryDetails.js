@@ -295,6 +295,15 @@ export const getBankAndSalaryDetailsById = async (req, res) => {
   }
 };
 
+export const getAllBankDetails = async (req, res) => {
+  try {
+    const bankDetails = await StaffBankDetails.find().populate("userId", "name email");
+    res.status(200).json(bankDetails);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch bank details", error: error.message });
+  }
+};
+
 
 const __filename = fileURLToPath(import.meta.url); 
 const __dirname = path.dirname(__filename);

@@ -13,7 +13,8 @@ import {
   FiCheck,
   FiEdit2,
   FiArrowLeft,
-  FiPercent
+  FiPercent,
+  FiX
 } from 'react-icons/fi';
 import { BsBank2, BsReceipt } from 'react-icons/bs';
 import { FaMoneyBillWave, FaPiggyBank } from 'react-icons/fa';
@@ -46,8 +47,37 @@ export default function AdminStaffSalary() {
     };
 
     fetchBankAndSalaryDetails();
-  }, [month, year]);
+  }, []);
 
+  const filteredStaffDetails = staffDetails
+  .filter((staff) => {
+    if (!staff.salaryDetails) return false; // Skip if no salary details
+    const matchesMonth = !month || staff.salaryDetails.month === month;
+    const matchesYear = !year || staff.salaryDetails.year === year;
+    return matchesMonth && matchesYear;
+  })
+  .sort((a, b) => {
+    // Sort by year descending, then by month descending
+    if (!a.salaryDetails || !b.salaryDetails) return 0;
+    if (b.salaryDetails.year !== a.salaryDetails.year) {
+      return b.salaryDetails.year - a.salaryDetails.year;
+    }
+    // Assuming month is stored as number (1-12), if stored as string, adjust accordingly
+    return b.salaryDetails.month - a.salaryDetails.month;
+  });
+
+// Get unique months and years for dropdowns (filter out undefined/null)
+const availableMonths = [...new Set(
+  staffDetails
+    .map(s => s.salaryDetails?.month)
+    .filter(month => month !== undefined && month !== null)
+)].sort((a, b) => b - a); // Sort months descending
+
+const availableYears = [...new Set(
+  staffDetails
+    .map(s => s.salaryDetails?.year)
+    .filter(year => year !== undefined && year !== null)
+)].sort((a, b) => b - a); // Sort years descending
   const handleUpdateClick = (staff) => {
     setSelectedStaff(staff);
     setBonus(staff.salaryDetails?.bonus || 0);
@@ -194,30 +224,30 @@ export default function AdminStaffSalary() {
                 Month
               </label>
               <select
-                className={`w-full p-2 border rounded-lg ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-              >
-                <option value="">All Months</option>
-                {Array.from(new Set(staffDetails.map(s => s.salaryDetails?.month))).map(month => (
-                  <option key={month} value={month}>{month}</option>
-                ))}
-              </select>
+  className={`w-full p-2 border rounded-lg ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
+  value={month}
+  onChange={(e) => setMonth(e.target.value)}
+>
+  <option value="">All Months</option>
+  {availableMonths.map(m => (
+    <option key={m} value={m}>{m}</option>
+  ))}
+</select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
                 Year
               </label>
               <select
-                className={`w-full p-2 border rounded-lg ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-              >
-                <option value="">All Year</option>
-                {Array.from(new Set(staffDetails.map(s => s.salaryDetails?.year))).map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
+  className={`w-full p-2 border rounded-lg ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
+  value={year}
+  onChange={(e) => setYear(e.target.value)}
+>
+  <option value="">All Years</option>
+  {availableYears.map(y => (
+    <option key={y} value={y}>{y}</option>
+  ))}
+</select>
             </div>
           </div>
         </div>
@@ -227,7 +257,7 @@ export default function AdminStaffSalary() {
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
-        ) : staffDetails.length > 0 ? (
+        ) : filteredStaffDetails.length > 0 ? (
           <div className={`rounded-xl shadow-sm overflow-hidden ${darkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -252,8 +282,8 @@ export default function AdminStaffSalary() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {staffDetails.map((staff) => (
-                    <tr key={staff._id} className={`${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}>
+                  {filteredStaffDetails.map((staff) => (
+                     <tr key={`${staff._id}-${staff.salaryDetails?.month}-${staff.salaryDetails?.year}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
