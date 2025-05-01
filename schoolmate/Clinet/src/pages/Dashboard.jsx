@@ -9,6 +9,8 @@ import DashStudents from '../components/DashStudents';
 import DashFinance from '../components/DashFinance';
 import DashAcademy from '../components/DashAcademy';
 import DashStaff from '../components/DashStaff';
+import AdminStudent from './AdminStudent';
+import AdminSubjects from './AdminSubjects';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -143,7 +145,9 @@ export default function Dashboard() {
         {tab === 'home' && <DashHome />}
         {tab === 'profile' && <DashProfile />}
         {tab === 'settings' && <DashSettings />}
-        {tab === 'students' && <DashStudents />}
+        {/* {tab === 'students' && <DashStudents />} */}
+        {tab === 'students' && <AdminStudent />}
+        {tab === 'subjects' && <AdminSubjects />}
         {tab === 'finance' && <DashFinance />}
         {tab === 'academy' && <DashAcademy />}
         {tab === 'staff' && <DashStaff />}

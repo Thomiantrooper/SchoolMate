@@ -253,7 +253,7 @@ export default function AdminStudent() {
               </Button>
             </motion.div>
           </div>
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -262,7 +262,7 @@ export default function AdminStudent() {
             >
               Back to Students
             </motion.button>
-          </div>
+          </div> */}
         </div>
       </div>
 
