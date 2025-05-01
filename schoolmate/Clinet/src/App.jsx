@@ -30,11 +30,13 @@ import StaffSalaryAssign from "./components/StaffSalaryAssign";
 import AdminMaintenance from "./components/AdminMaintenance";
 import AdminIncome from "./components/AdminIncome"
 import StaffExam from "./components/StaffExam";
+import AddStaff from "./pages/AddStaff";
 
 import StaffHeader from "./components/StaffHeader";
 import StaffFooter from "./components/StaffFooter";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProfile from "./components/StaffProfile";
+import StaffLeave from "./components/StaffLeave";
 import StaffModule from "./components/StaffModule";
 import StaffPayment from "./components/StaffPayment";
 import StaffContact from "./components/StaffContact";
@@ -53,7 +55,8 @@ export default function App() {
             <ThemeLayout>
               <Header />
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Signin />} />
+                <Route path="/home" element={<Home />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/signin" element={<Signin />} />
@@ -81,6 +84,7 @@ export default function App() {
                   <Route path="/admin-income" element={<AdminIncome />} />
                   <Route path="/admin-income/add" element={<AddIncomePage />} />
                   <Route path="/admin-income/add/:incomeId" element={<AddIncomePage />} />
+                  <Route path="/staff-add" element={<AddStaff />} />
                   <Route path="/library" element={<Library />} />
                 </Route>
               </Routes>
@@ -119,6 +123,7 @@ export default function App() {
                 <Route path="/payment" element={<StaffPayment />} />
                 <Route path="/contact" element={<StaffContact />} />
                 <Route path="/exam" element={<StaffExam />} />
+                <Route path="/staff-leave" element={<StaffLeave />} />
                 <Route path="/bank-details" element={<StaffAddBankdetails />} />
               </Routes>
               <StaffFooter />

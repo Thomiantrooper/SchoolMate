@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -14,11 +14,56 @@ const Library = () => {
   const [sortType, setSortType] = useState("title");
 
   const books = [
-    { id: 1, title: "JavaScript: The Good Parts", author: "Douglas Crockford", cover: "https://via.placeholder.com/150", description: "A deep dive into JavaScript's best features.", rating: 4, genre: "Programming" },
-    { id: 2, title: "Eloquent JavaScript", author: "Marijn Haverbeke", cover: "https://via.placeholder.com/150", description: "An introduction to JavaScript and programming.", rating: 5, genre: "Programming" },
-    { id: 3, title: "You Don't Know JS", author: "Kyle Simpson", cover: "https://via.placeholder.com/150", description: "A series that explores the inner workings of JavaScript.", rating: 4, genre: "Programming" },
-    { id: 4, title: "Clean Code", author: "Robert C. Martin", cover: "https://via.placeholder.com/150", description: "A handbook of agile software craftsmanship.", rating: 5, genre: "Best Seller" },
-    { id: 5, title: "The Pragmatic Programmer", author: "Andrew Hunt", cover: "https://via.placeholder.com/150", description: "Journey to mastery of programming.", rating: 5, genre: "Recommended" },
+    {
+      id: 1,
+      title: "JavaScript: The Good Parts",
+      author: "Douglas Crockford",
+      cover: "/js.png",
+      description: "A deep dive into JavaScript's best features.",
+      rating: 4,
+      genre: "Programming",
+      link: "https://andersonguelphjs.github.io/OReilly_JavaScript_The_Good_Parts_May_2008.pdf",
+    },
+    {
+      id: 2,
+      title: "Eloquent JavaScript",
+      author: "Marijn Haverbeke",
+      cover: "/eloquent.jpg",
+      description: "An introduction to JavaScript and programming.",
+      rating: 5,
+      genre: "Programming",
+      link: "https://eloquentjavascript.net/Eloquent_JavaScript_small.pdf",
+    },
+    {
+      id: 3,
+      title: "You Don't Know JS",
+      author: "Kyle Simpson",
+      cover: "/you_dont_know.jpg",
+      description: "A series that explores the inner workings of JavaScript.",
+      rating: 4,
+      genre: "Programming",
+      link: "https://archive.org/details/kyle-simpson-all-6",
+    },
+    {
+      id: 4,
+      title: "Clean Code",
+      author: "Robert C. Martin",
+      cover: "/clean_code.jpg",
+      description: "A handbook of agile software craftsmanship.",
+      rating: 5,
+      genre: "Best Seller",
+      link: "https://github.com/jnguyen095/clean-code/blob/master/Clean.Code.A.Handbook.of.Agile.Software.Craftsmanship.pdf",
+    },
+    {
+      id: 5,
+      title: "The Pragmatic Programmer",
+      author: "Andrew Hunt",
+      cover: "/programmer.jpg",
+      description: "Journey to mastery of programming.",
+      rating: 5,
+      genre: "Recommended",
+      link: "https://github.com/lighthousand/books/blob/master/the-pragmatic-programmer.pdf",
+    },
   ];
 
   const featuredBook = books[Math.floor(Math.random() * books.length)];
@@ -48,12 +93,9 @@ const Library = () => {
     );
   };
 
-  const toggleMusic = () => {
-    setBackgroundMusic(!backgroundMusic);
-  };
+  const toggleMusic = () => setBackgroundMusic(!backgroundMusic);
 
   const rateBook = (bookId, newRating) => {
-    // Normally should update backend, but we'll just log it for now
     console.log(`Book ${bookId} rated with ${newRating} stars`);
   };
 
@@ -70,24 +112,33 @@ const Library = () => {
 
   return (
     <div className="relative p-6 min-h-screen bg-gradient-to-b from-gray-900 to-black text-white font-serif overflow-hidden">
-      
-      {/* Floating animated icons (background) */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-10">
         {[...Array(20)].map((_, i) => (
-          <div key={i} className="absolute bg-yellow-500 rounded-full w-2 h-2 animate-ping" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animationDuration: `${2 + Math.random() * 4}s` }}></div>
+          <div
+            key={i}
+            className="absolute bg-yellow-500 rounded-full w-2 h-2 animate-ping"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDuration: `${2 + Math.random() * 4}s`,
+            }}
+          ></div>
         ))}
       </div>
 
-      <h1 className="text-4xl font-bold mb-8 text-yellow-400 drop-shadow-lg text-center">📚 Nostalgic Library</h1>
+      <h1 className="text-4xl font-bold mb-8 text-yellow-400 drop-shadow-lg text-center">
+        📚 Nostalgic Library
+      </h1>
 
-      {/* Music button */}
       <div className="flex justify-center mb-4">
-        <button onClick={toggleMusic} className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-full font-semibold shadow-md">
+        <button
+          onClick={toggleMusic}
+          className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-full font-semibold shadow-md"
+        >
           {backgroundMusic ? "Pause Music 🎵" : "Play Nostalgic Music 🎶"}
         </button>
       </div>
 
-      {/* Animated music notes if playing */}
       {backgroundMusic && (
         <div className="flex justify-center space-x-2 mb-6">
           <span className="animate-bounce text-yellow-300">🎶</span>
@@ -96,13 +147,13 @@ const Library = () => {
         </div>
       )}
 
-      {/* Featured book */}
       <div className="max-w-2xl mx-auto p-6 mb-10 bg-gray-800 rounded-lg shadow-lg border-2 border-yellow-500 text-center">
         <h2 className="text-2xl font-bold mb-2 text-yellow-300">🌟 Featured Book</h2>
-        <p className="italic text-gray-300">"{featuredBook.title}" by {featuredBook.author}</p>
+        <p className="italic text-gray-300">
+          "{featuredBook.title}" by {featuredBook.author}
+        </p>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap justify-center gap-4 mb-6">
         <input
           type="text"
@@ -127,7 +178,6 @@ const Library = () => {
         </button>
       </div>
 
-      {/* Books slider */}
       <div className="max-w-6xl mx-auto">
         <Slider {...settings}>
           {filteredBooks.map((book) => (
@@ -159,6 +209,15 @@ const Library = () => {
                     </span>
                   ))}
                 </div>
+                <a
+                  href={book.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-blue-300 underline text-sm mt-1 relative z-10"
+                >
+                  Read Book 📖
+                </a>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -174,21 +233,40 @@ const Library = () => {
         </Slider>
       </div>
 
-      {/* Book Popup */}
       {selectedBook && (
-        <Dialog open={isOpen} onClose={closePopup} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
-          <div className="bg-gray-800 p-8 rounded-lg max-w-lg text-center shadow-xl border-2 border-yellow-500">
-            <h2 className="text-3xl font-bold mb-4 text-yellow-400">{selectedBook.title}</h2>
-            <p className="text-gray-400 mb-2">by {selectedBook.author}</p>
-            <p className="text-yellow-300 mb-4 italic">Genre: {selectedBook.genre}</p>
-            <p className="text-gray-300 mb-4">"{selectedBook.description}"</p>
-            <p className="text-yellow-400">⭐ {selectedBook.rating} / 5</p>
-            <button onClick={closePopup} className="mt-6 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-lg text-gray-900 font-semibold">
-              Close
-            </button>
-          </div>
-        </Dialog>
-      )}
+  <Dialog
+    open={isOpen}
+    onClose={closePopup}
+    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70"
+  >
+    <div className="bg-gray-800 p-8 rounded-lg max-w-lg w-full text-center shadow-xl border-2 border-yellow-500">
+      <h2 className="text-3xl font-bold mb-4 text-yellow-400">{selectedBook.title}</h2>
+      <p className="text-gray-400 mb-2">by {selectedBook.author}</p>
+      <p className="text-yellow-300 mb-4 italic">Genre: {selectedBook.genre}</p>
+      <p className="text-gray-300 mb-4">"{selectedBook.description}"</p>
+      <p className="text-yellow-400 mb-6">⭐ {selectedBook.rating} / 5</p>
+
+      <a
+        href={selectedBook.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg transition duration-300"
+      >
+        📖 Read Now
+      </a>
+
+      <div className="mt-6">
+        <button
+          onClick={closePopup}
+          className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-lg text-gray-900 font-semibold"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </Dialog>
+)}
+
     </div>
   );
 };

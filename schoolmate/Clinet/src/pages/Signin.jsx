@@ -19,8 +19,7 @@ export default function SignIn() {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleLoginClick = async () => {
     if (!formData.email || !formData.password) {
       dispatch(signInFailure('Please fill all the fields'));
       return;
@@ -42,13 +41,14 @@ export default function SignIn() {
 
       dispatch(signInSuccess(data));
 
-      // Check if email starts with std_ followed by numbers
-      if (/^std_\d+/.test(formData.email.split('@')[0])) {
+      // Redirect based on email
+      const prefix = formData.email.split('@')[0];
+      if (/^std_\d+/.test(prefix)) {
         navigate('/student-page');
-      } else if (/^staff_\d+/.test(formData.email.split('@')[0])) {
+      } else if (/^staff_\d+/.test(prefix)) {
         navigate('/staff-page');
       } else {
-        navigate('/');
+        navigate('/home'); 
       }
     } catch (error) {
       dispatch(signInFailure(error.message || 'Something went wrong'));
@@ -73,7 +73,7 @@ export default function SignIn() {
 
         {/* Right Section */}
         <div className='flex-1'>
-          <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+          <form className='flex flex-col gap-4'>
             <div>
               <Label value='Your email' />
               <TextInput
@@ -96,7 +96,12 @@ export default function SignIn() {
                 required
               />
             </div>
-            <Button gradientDuoTone='purpleToPink' type='submit' disabled={loading}>
+            <Button
+              gradientDuoTone='purpleToPink'
+              type='button'
+              disabled={loading}
+              onClick={handleLoginClick} // moved here
+            >
               {loading ? (
                 <>
                   <Spinner size='sm' />
@@ -107,12 +112,14 @@ export default function SignIn() {
               )}
             </Button>
           </form>
+
           <div className='flex gap-2 text-sm mt-5'>
             <span> Don't have an account?</span>
             <Link to='/signup' className='text-blue-500'>
               Sign Up
             </Link>
           </div>
+
           {errorMessage && (
             <Alert className='mt-5' color='failure'>
               {errorMessage}
