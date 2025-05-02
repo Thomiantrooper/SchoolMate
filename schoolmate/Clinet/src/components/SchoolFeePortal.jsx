@@ -52,50 +52,61 @@ export default function StudentFeePortal() {
   };
 
   const downloadReceipt = (payment) => {
-    const doc = new jsPDF();
-    
-    // Add logo or header
-    doc.setFontSize(20);
-    doc.setTextColor(40, 103, 248);
-    doc.text("SchoolMate Payment Receipt", 105, 20, null, null, 'center');
-    
-    // Add divider line
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, 30, 190, 30);
-    
-    // Student information
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Student: ${payment.userId?.username || "N/A"}`, 20, 40);
-    doc.text(`Student ID: ${payment.userId?._id || "N/A"}`, 20, 50);
-    doc.text(`Email: ${payment.email || "N/A"}`, 20, 60);
-    
-    // Payment details
-    doc.setFontSize(14);
-    doc.setTextColor(40, 103, 248);
-    doc.text("Payment Details", 20, 80);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Amount: $${payment.amount || "0.00"}`, 20, 90);
-    doc.text(`Grade: ${payment.grade || "N/A"}`, 20, 100);
-    doc.text(`Bank: ${payment.bank || "N/A"}`, 20, 110);
-    doc.text(`Branch: ${payment.branch || "N/A"}`, 20, 120);
-    doc.text(`Payment Method: ${payment.method || "N/A"}`, 20, 130);
-    doc.text(`For Month: ${payment.month || "N/A"}`, 20, 140);
-    doc.text(`Payment Date: ${payment.date ? new Date(payment.date).toLocaleDateString() : "Pending"}`, 20, 150);
-    
-    // Status with color
-    doc.setTextColor(payment.status === 'paid' ? [0, 128, 0] : payment.status === 'failed' ? [255, 0, 0] : [255, 165, 0]);
-    doc.text(`Status: ${payment.status?.toUpperCase() || "PENDING"}`, 20, 160);
-    
-    // Footer
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Thank you for your payment", 105, 280, null, null, 'center');
-    doc.text("SchoolMate Administration", 105, 285, null, null, 'center');
-    
-    doc.save(`${payment.userId?.username || 'payment'}_receipt_${payment.month || ''}.pdf`);
+    try {
+      const doc = new jsPDF();
+      
+      // Add logo or header
+      doc.setFontSize(20);
+      doc.setTextColor(40, 103, 248); // Using RGB values
+      doc.text("SchoolMate Payment Receipt", 105, 20, { align: 'center' });
+      
+      // Add divider line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, 30, 190, 30);
+      
+      // Student information
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0); // Black
+      doc.text(`Student: ${payment.userId?.username || "N/A"}`, 20, 40);
+      doc.text(`Student ID: ${payment.userId?._id || "N/A"}`, 20, 50);
+      doc.text(`Email: ${payment.email || "N/A"}`, 20, 60);
+      
+      // Payment details
+      doc.setFontSize(14);
+      doc.setTextColor(40, 103, 248); // Blue
+      doc.text("Payment Details", 20, 80);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0); // Black
+      doc.text(`Amount: $${payment.amount?.toFixed(2) || "0.00"}`, 20, 90);
+      doc.text(`Grade: ${payment.grade || "N/A"}`, 20, 100);
+      doc.text(`Bank: ${payment.bank || "N/A"}`, 20, 110);
+      doc.text(`Branch: ${payment.branch || "N/A"}`, 20, 120);
+      doc.text(`Payment Method: ${payment.method || "N/A"}`, 20, 130);
+      doc.text(`For Month: ${payment.month || "N/A"}`, 20, 140);
+      doc.text(`Payment Date: ${payment.date ? new Date(payment.date).toLocaleDateString() : "Pending"}`, 20, 150);
+      
+      // Status with color - using proper RGB values
+      if (payment.status === 'paid') {
+        doc.setTextColor(0, 128, 0); // Green
+      } else if (payment.status === 'failed') {
+        doc.setTextColor(255, 0, 0); // Red
+      } else {
+        doc.setTextColor(255, 165, 0); // Orange
+      }
+      doc.text(`Status: ${payment.status?.toUpperCase() || "PENDING"}`, 20, 160);
+      
+      // Reset to black for footer
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.text("Thank you for your payment", 105, 280, { align: 'center' });
+      doc.text("SchoolMate Administration", 105, 285, { align: 'center' });
+      
+      doc.save(`${payment.userId?.username || 'payment'}_receipt_${payment.month || ''}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate receipt. Please try again.");
+    }
   };
 
   const StatusBadge = ({ status }) => {
@@ -230,7 +241,7 @@ export default function StudentFeePortal() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                          ${payment.amount || '0.00'}
+                          ${payment.amount?.toFixed(2) || '0.00'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
