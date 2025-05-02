@@ -117,14 +117,14 @@ export default function AdminStudent() {
     }
 
     const age = parseInt(newStudent.age);
-    if (isNaN(age) || age < 1 || age > 25) {
-      setValidationError("Age must be between 1 and 25.");
+    if (isNaN(age) || age < 10 || age > 20) {
+      setValidationError("Age must be between 10 and 20.");
       return false;
     }
 
     const grade = parseInt(newStudent.grade);
-    if (isNaN(grade) || grade < 1 || grade > 13) {
-      setValidationError("Grade must be between 1 and 13.");
+    if (isNaN(grade) || grade < 6 || grade > 13) {
+      setValidationError("Grade must be between 6 and 13.");
       return false;
     }
 
@@ -380,14 +380,14 @@ export default function AdminStudent() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="age">Age (1-25)</Label>
+                <Label htmlFor="age">Age (10-20)</Label>
                 <TextInput
                   id="age"
                   type="number"
                   value={newStudent.age}
                   onChange={(e) => setNewStudent({ ...newStudent, age: e.target.value })}
-                  min="1"
-                  max="25"
+                  min="10"
+                  max="20"
                   className="w-full"
                   required
                   disabled={isLoading}
@@ -413,13 +413,13 @@ export default function AdminStudent() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="grade">Grade (1-13)</Label>
+                <Label htmlFor="grade">Grade (6-13)</Label>
                 <TextInput
                   id="grade"
                   type="number"
                   value={newStudent.grade}
                   onChange={(e) => setNewStudent({ ...newStudent, grade: parseInt(e.target.value) || "" })}
-                  min="1"
+                  min="6"
                   max="13"
                   className="w-full"
                   required

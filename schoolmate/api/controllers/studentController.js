@@ -108,6 +108,21 @@ export const getStudents = async (req, res) => {
   }
 };
 
+// Get Students ByGrade
+export const getStudentsByGrade = async (req, res) => {
+  try {
+    const query = { grade: req.params.grade };
+    const projection = req.query.fields
+      ? req.query.fields.split(",").join(" ")
+      : "";
+
+    const students = await Student.find(query, projection);
+    res.status(200).json(students);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Update Student
 export const updateStudent = async (req, res) => {
   try {

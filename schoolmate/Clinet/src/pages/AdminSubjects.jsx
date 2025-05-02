@@ -2,10 +2,12 @@ import { useState, useContext, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button, Modal, TextInput, Label } from "flowbite-react";
 import { ThemeContext } from "../components/ThemeLayout";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function AdminSubjects() {
   const { darkMode } = useContext(ThemeContext);
+  const navigate = useNavigate();
   const [isAddSubjectModalOpen, setIsAddSubjectModalOpen] = useState(false);
   const [isEditSubjectModalOpen, setIsEditSubjectModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
@@ -228,6 +230,7 @@ const closeEditSubjectModal = () => {
   size="xs" 
   color="green" 
   disabled={isLoading}
+  onClick={() => navigate(`/subject-marks/${subject.subjectName}/${subject.grade}`)}
 >
   View Students
 </Button>

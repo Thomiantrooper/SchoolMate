@@ -52,6 +52,7 @@ app.use("/api/maintenance", Maintenance);
 app.use("/api/income", Income);
 app.use("/api/student", studentRoute);
 app.use("/api/subject", subjectRoute);
+
 app.use("/api/exam", Exam);
 app.use("/api/homework", homeworkRoutes);
 // Error Handling Middleware
