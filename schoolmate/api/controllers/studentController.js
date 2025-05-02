@@ -108,6 +108,19 @@ export const getStudents = async (req, res) => {
   }
 };
 
+// Get student by user ID
+export const getStudentByUserId = async (req, res) => {
+  try {
+    const student = await Student.findOne({ userId: req.params.id });
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+    res.status(200).json(student);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get Students ByGrade
 export const getStudentsByGrade = async (req, res) => {
   try {

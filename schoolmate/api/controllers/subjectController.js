@@ -74,6 +74,16 @@ export const getSubjects = async (req, res) => {
   }
 };
 
+// In your subject controller
+export const getSubjectsByGrade = async (req, res) => {
+  try {
+    const subjects = await Subject.find({ grade: req.params.grade });
+    res.status(200).json(subjects);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Update Subject
 export const updateSubject = async (req, res) => {
   try {
