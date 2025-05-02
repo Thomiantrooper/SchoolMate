@@ -12,7 +12,6 @@ export default function SignIn() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { loading, error: errorMessage } = useSelector((state) => state.user);
 
   const handleChange = (e) => {
@@ -41,14 +40,13 @@ export default function SignIn() {
 
       dispatch(signInSuccess(data));
 
-      // Redirect based on email
       const prefix = formData.email.split('@')[0];
       if (/^std_\d+/.test(prefix)) {
         navigate('/student-page');
       } else if (/^staff_\d+/.test(prefix)) {
         navigate('/staff-page');
       } else {
-        navigate('/home'); 
+        navigate('/home');
       }
     } catch (error) {
       dispatch(signInFailure(error.message || 'Something went wrong'));
@@ -56,56 +54,63 @@ export default function SignIn() {
   };
 
   return (
-    <div className='min-h-screen mt-20 flex items-center justify-center'>
-      <div className='p-6 max-w-3xl mx-auto flex flex-col md:flex-row md:items-center gap-5 shadow-lg bg-white dark:bg-gray-900 rounded-lg'>
+    <div className='min-h-screen bg-gradient-to-br from-indigo-100 to-pink-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4'>
+      <div className='w-full max-w-4xl bg-white dark:bg-gray-900 shadow-2xl rounded-2xl flex flex-col md:flex-row overflow-hidden'>
 
-        {/* Left Section */}
-        <div className='flex-1'>
-          <Link to='/' className='font-bold dark:text-white text-4xl'>
-            <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
-              SchoolMate
-            </span>
-          </Link>
-          <p className='text-sm mt-5 text-gray-600 dark:text-gray-300'>
-            Virtual study area to make learning easier
+        {/* Left Branding Section */}
+        <div className='md:w-1/2 p-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white flex flex-col justify-center'>
+          <h1 className='text-4xl font-extrabold mb-4'>Welcome Back 👋</h1>
+          <p className='text-md mb-6'>
+            Sign in to continue your journey with <span className='font-bold'>SchoolMate</span>.
           </p>
+          <img
+            src='https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/illustration.svg'
+            alt='Study Illustration'
+            className='w-3/4 mx-auto'
+          />
         </div>
 
-        {/* Right Section */}
-        <div className='flex-1'>
-          <form className='flex flex-col gap-4'>
+        {/* Right Form Section */}
+        <div className='md:w-1/2 p-10'>
+          <Link to='/' className='block text-3xl font-bold text-center mb-8 dark:text-white'>
+            SchoolMate
+          </Link>
+
+          <form className='flex flex-col gap-5'>
             <div>
-              <Label value='Your email' />
+              <Label htmlFor='email' value='Email address' />
               <TextInput
                 type='email'
-                placeholder='name@company.com'
                 id='email'
+                placeholder='name@company.com'
                 value={formData.email}
                 onChange={handleChange}
                 required
               />
             </div>
             <div>
-              <Label value='Your password' />
+              <Label htmlFor='password' value='Password' />
               <TextInput
                 type='password'
-                placeholder='**********'
                 id='password'
+                placeholder=''
                 value={formData.password}
                 onChange={handleChange}
                 required
               />
             </div>
+
             <Button
               gradientDuoTone='purpleToPink'
               type='button'
               disabled={loading}
-              onClick={handleLoginClick} // moved here
+              onClick={handleLoginClick}
+              className='mt-2'
             >
               {loading ? (
                 <>
                   <Spinner size='sm' />
-                  <span className='pl-3'>Loading...</span>
+                  <span className='pl-3'>Signing in...</span>
                 </>
               ) : (
                 'Sign In'
@@ -113,9 +118,9 @@ export default function SignIn() {
             </Button>
           </form>
 
-          <div className='flex gap-2 text-sm mt-5'>
-            <span> Don't have an account?</span>
-            <Link to='/signup' className='text-blue-500'>
+          <div className='flex justify-between items-center mt-5 text-sm'>
+            <span className='text-gray-600 dark:text-gray-300'>Don’t have an account?</span>
+            <Link to='/signup' className='text-purple-600 hover:underline font-medium'>
               Sign Up
             </Link>
           </div>
