@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button, TextInput, Alert, Badge, Spinner, Table, Card } from 'flowbite-react';
-import { HiCamera, HiAcademicCap, HiIdentification, HiMail, HiUser, HiLockClosed, HiTable, HiChartBar } from 'react-icons/hi';
+import { Button, TextInput, Alert, Badge, Spinner, Card } from 'flowbite-react';
+import { HiCamera, HiAcademicCap, HiMail, HiUser, HiLockClosed } from 'react-icons/hi';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/user/userSlice';
 import { updateProfileImage } from '../redux/user/userSlice';
 import { updateStart, updateSuccess, updateFailure } from '../redux/user/userSlice';
+import AcademicMarks from './AcademicMarks'; // Import the new component
 
 export default function StudentProfile() {
   const dispatch = useDispatch();
@@ -20,26 +21,6 @@ export default function StudentProfile() {
   const [updateSuccessMessage, setUpdateSuccessMessage] = useState(null);
   const [updateErrorMessage, setUpdateErrorMessage] = useState(null);
   const [formData, setFormData] = useState({});
-
-  // Calculate term statistics
-  const calculateTermStats = (term) => {
-    if (!studentData?.marks) return { subjects: [], total: 0, average: 0 };
-    
-    const subjects = studentData.marks.map(mark => ({
-      subjectId: mark.subject,
-      subjectName: mark.subject,
-      mark: mark[term]
-    })).filter(subject => subject.mark !== undefined && subject.mark !== null);
-
-    const total = subjects.reduce((sum, subject) => sum + subject.mark, 0);
-    const average = subjects.length > 0 ? (total / subjects.length).toFixed(2) : 0;
-
-    return { subjects, total, average };
-  };
-
-  const firstTerm = calculateTermStats('firstTerm');
-  const secondTerm = calculateTermStats('secondTerm');
-  const thirdTerm = calculateTermStats('thirdTerm');
 
   // Fetch student data when component mounts
   useEffect(() => {
@@ -196,7 +177,6 @@ export default function StudentProfile() {
                       <span>Grade {studentData.grade}{studentData.section}</span>
                     </div>
                     <Badge color="info" className="inline-flex items-center mt-2">
-                     
                       SID: {studentData.studentEmail?.split('@')[0].toUpperCase()}
                     </Badge>
                   </div>
@@ -209,7 +189,6 @@ export default function StudentProfile() {
                   {/* Email Field */}
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                      
                       Email Address
                     </label>
                     <TextInput 
@@ -226,7 +205,6 @@ export default function StudentProfile() {
                   {/* Username Field */}
                   <div>
                     <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                      
                       Username
                     </label>
                     <TextInput 
@@ -243,7 +221,6 @@ export default function StudentProfile() {
                   {/* Password Field */}
                   <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                      
                       New Password
                     </label>
                     <TextInput 
@@ -292,147 +269,7 @@ export default function StudentProfile() {
               </div>
             </div>
           ) : (
-            <div className="p-8">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-                <HiChartBar className="mr-2 text-blue-600" />
-                Academic Performance
-              </h2>
-
-              {/* First Term */}
-              <Card className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-700">1st Term </h3>
-                  <div className="flex space-x-4">
-                    <Badge color="success" size="lg" className="px-4 py-1.5">
-                      Total: {firstTerm.total}
-                    </Badge>
-                    <Badge color="info" size="lg" className="px-4 py-1.5">
-                      Average: {firstTerm.average}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="overflow-x-auto">
-                  <Table hoverable className="w-full">
-                    <Table.Head className="bg-gray-100">
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Subject ID</Table.HeadCell>
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Subject Name</Table.HeadCell>
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Marks</Table.HeadCell>
-                    </Table.Head>
-                    <Table.Body className="divide-y">
-                      {firstTerm.subjects.length > 0 ? (
-                        firstTerm.subjects.map((subject, index) => (
-                          <Table.Row key={`first-${index}`} className="hover:bg-gray-50">
-                            <Table.Cell className="text-base py-4">{subject.subjectId}</Table.Cell>
-                            <Table.Cell className="text-base py-4 font-medium">{subject.subjectName}</Table.Cell>
-                            <Table.Cell className="text-base py-4">
-                              <span className={`px-3 py-1 rounded-full ${subject.mark >= 75 ? 'bg-green-100 text-green-800' : subject.mark >= 50 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                {subject.mark}
-                              </span>
-                            </Table.Cell>
-                          </Table.Row>
-                        ))
-                      ) : (
-                        <Table.Row>
-                          <Table.Cell colSpan="3" className="text-center py-6 text-gray-500">
-                            No marks available for first term
-                          </Table.Cell>
-                        </Table.Row>
-                      )}
-                    </Table.Body>
-                  </Table>
-                </div>
-              </Card>
-
-              {/* Second Term */}
-              <Card className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-700">2nd Term </h3>
-                  <div className="flex space-x-4">
-                    <Badge color="success" size="lg" className="px-4 py-1.5">
-                      Total: {secondTerm.total}
-                    </Badge>
-                    <Badge color="info" size="lg" className="px-4 py-1.5">
-                      Average: {secondTerm.average}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="overflow-x-auto">
-                  <Table hoverable className="w-full">
-                    <Table.Head className="bg-gray-100">
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Subject ID</Table.HeadCell>
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Subject Name</Table.HeadCell>
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Marks</Table.HeadCell>
-                    </Table.Head>
-                    <Table.Body className="divide-y">
-                      {secondTerm.subjects.length > 0 ? (
-                        secondTerm.subjects.map((subject, index) => (
-                          <Table.Row key={`second-${index}`} className="hover:bg-gray-50">
-                            <Table.Cell className="text-base py-4">{subject.subjectId}</Table.Cell>
-                            <Table.Cell className="text-base py-4 font-medium">{subject.subjectName}</Table.Cell>
-                            <Table.Cell className="text-base py-4">
-                              <span className={`px-3 py-1 rounded-full ${subject.mark >= 75 ? 'bg-green-100 text-green-800' : subject.mark >= 50 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                {subject.mark}
-                              </span>
-                            </Table.Cell>
-                          </Table.Row>
-                        ))
-                      ) : (
-                        <Table.Row>
-                          <Table.Cell colSpan="3" className="text-center py-6 text-gray-500">
-                            No marks available for second term
-                          </Table.Cell>
-                        </Table.Row>
-                      )}
-                    </Table.Body>
-                  </Table>
-                </div>
-              </Card>
-
-              {/* Third Term */}
-              <Card className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-700">3rd Term </h3>
-                  <div className="flex space-x-4">
-                    <Badge color="success" size="lg" className="px-4 py-1.5">
-                      Total: {thirdTerm.total}
-                    </Badge>
-                    <Badge color="info" size="lg" className="px-4 py-1.5">
-                      Average: {thirdTerm.average}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="overflow-x-auto">
-                  <Table hoverable className="w-full">
-                    <Table.Head className="bg-gray-100">
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Subject ID</Table.HeadCell>
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Subject Name</Table.HeadCell>
-                      <Table.HeadCell className="text-lg font-semibold text-gray-700 py-3">Marks</Table.HeadCell>
-                    </Table.Head>
-                    <Table.Body className="divide-y">
-                      {thirdTerm.subjects.length > 0 ? (
-                        thirdTerm.subjects.map((subject, index) => (
-                          <Table.Row key={`third-${index}`} className="hover:bg-gray-50">
-                            <Table.Cell className="text-base py-4">{subject.subjectId}</Table.Cell>
-                            <Table.Cell className="text-base py-4 font-medium">{subject.subjectName}</Table.Cell>
-                            <Table.Cell className="text-base py-4">
-                              <span className={`px-3 py-1 rounded-full ${subject.mark >= 75 ? 'bg-green-100 text-green-800' : subject.mark >= 50 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                {subject.mark}
-                              </span>
-                            </Table.Cell>
-                          </Table.Row>
-                        ))
-                      ) : (
-                        <Table.Row>
-                          <Table.Cell colSpan="3" className="text-center py-6 text-gray-500">
-                            No marks available for third term
-                          </Table.Cell>
-                        </Table.Row>
-                      )}
-                    </Table.Body>
-                  </Table>
-                </div>
-              </Card>
-            </div>
+            <AcademicMarks studentData={studentData} />
           )}
         </div>
       </div>
