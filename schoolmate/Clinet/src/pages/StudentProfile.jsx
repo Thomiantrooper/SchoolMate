@@ -1,21 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button, TextInput, Alert, Modal, Badge } from 'flowbite-react';
-import { HiOutlineExclamationCircle, HiCamera } from 'react-icons/hi';
+import { Button, TextInput, Alert, Badge, Spinner, Card } from 'flowbite-react';
+import { HiCamera, HiAcademicCap, HiMail, HiUser, HiLockClosed } from 'react-icons/hi';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/user/userSlice';
 import { updateProfileImage } from '../redux/user/userSlice';
-import {
-  updateStart,
-  updateSuccess,
-  updateFailure,
-  deleteUserStart,
-  deleteUserSuccess,
-  deleteUserFailure,
-} from '../redux/user/userSlice';
+import { updateStart, updateSuccess, updateFailure } from '../redux/user/userSlice';
+import AcademicMarks from './AcademicMarks'; // Import the new component
 
 export default function StudentProfile() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
+  const [studentData, setStudentData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('profile');
 
   const storedImage = localStorage.getItem(`profileImage-${currentUser?._id}`);
   const [profileImage, setProfileImage] = useState(storedImage || currentUser?.profilePicture || '');
@@ -23,8 +20,29 @@ export default function StudentProfile() {
   const fileInputRef = useRef(null);
   const [updateSuccessMessage, setUpdateSuccessMessage] = useState(null);
   const [updateErrorMessage, setUpdateErrorMessage] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({});
+
+  // Fetch student data when component mounts
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/student/user/${currentUser._id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setStudentData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentUser) {
+      fetchStudentData();
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (profileImage) {
@@ -35,9 +53,9 @@ export default function StudentProfile() {
   const handleSignOut = () => {
     dispatch(logout());
     window.location.href = '/signin';
-};
+  };
 
-const handleImageChange = (event) => {
+  const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -84,6 +102,7 @@ const handleImageChange = (event) => {
       } else {
         dispatch(updateSuccess(data));
         setUpdateSuccessMessage("Profile updated successfully!");
+        setFormData({});
       }
     } catch (error) {
       dispatch(updateFailure(error.message));
@@ -91,68 +110,167 @@ const handleImageChange = (event) => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    setShowModal(false);
-    try {
-      dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: 'DELETE',
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        dispatch(deleteUserFailure(data.message));
-      } else {
-        dispatch(deleteUserSuccess(data));
-        localStorage.removeItem(`profileImage-${currentUser._id}`);
-      }
-    } catch (error) {
-      dispatch(deleteUserFailure(error.message));
-    }
-  };
-
-  if (!currentUser) return <div>Loading...</div>;
+  if (!currentUser || loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100">
+        <div className="text-center">
+          <Spinner size="xl" />
+          <p className="mt-4 text-lg text-gray-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 animate-wave opacity-30"></div>
-      <div className="relative max-w-3xl w-full p-10 bg-gray-200 shadow-2xl rounded-3xl">
-        <h1 className="text-center text-3xl font-semibold text-gray-800">Student Profile</h1>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+          {/* Profile Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-green-600 p-8 text-white text-center">
+            <h1 className="text-3xl font-bold">Student Profile</h1>
+            <p className="mt-2 opacity-90">Manage your account information</p>
+          </div>
 
-        {/* Profile Image Section */}
-        <div className="relative mx-auto w-32 h-32 mt-6">
-          <img
-            src={profileImage}
-            alt="Student"
-            className="rounded-full w-full h-full object-cover border-4 border-gray-400"
-          />
-          <button
-            className="absolute bottom-2 right-2 bg-gray-800 text-white p-2 rounded-full"
-            onClick={handleClick}
-          >
-            <HiCamera className="w-6 h-6" />
-          </button>
-        </div>
-        <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
+          {/* Navigation Tabs */}
+          <div className="flex border-b">
+            <button
+              className={`px-6 py-3 font-medium text-lg ${activeTab === 'profile' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              Profile
+            </button>
+            <button
+              className={`px-6 py-3 font-medium text-lg ${activeTab === 'marks' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+              onClick={() => setActiveTab('marks')}
+            >
+              Academic Marks
+            </button>
+          </div>
 
-        {/* Student Badge */}
-        <div className="text-center mt-4">
-          <Badge color="blue">Student</Badge>
-        </div>
+          {/* Profile Content */}
+          {activeTab === 'profile' ? (
+            <div className="p-8 md:flex">
+              {/* Left Column - Profile Picture */}
+              <div className="md:w-1/3 flex flex-col items-center mb-8 md:mb-0">
+                <div className="relative w-40 h-40 mb-4">
+                  <img
+                    src={profileImage}
+                    alt="Student"
+                    className="rounded-full w-full h-full object-cover border-4 border-white shadow-lg"
+                  />
+                  <button
+                    className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors shadow-md"
+                    onClick={handleClick}
+                    aria-label="Change profile picture"
+                  >
+                    <HiCamera className="w-5 h-5" />
+                  </button>
+                </div>
+                <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
 
-        {/* Profile Form */}
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <TextInput type="text" id="username" placeholder="Username" defaultValue={currentUser.username} onChange={handleChange} />
-          <TextInput type="email" id="email" placeholder="Email" defaultValue={currentUser.email} onChange={handleChange} />
-          <TextInput type="password" id="password" placeholder="New Password" onChange={handleChange} />
-          <Button type="submit" gradientDuoTone="purpleToBlue" outline className="w-full">
-            Update Profile
-          </Button>
-        </form>
+                {/* Student Info */}
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-gray-800">{studentData.name}</h2>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center justify-center text-gray-600">
+                      <HiAcademicCap className="mr-2" />
+                      <span>Grade {studentData.grade}{studentData.section}</span>
+                    </div>
+                    <Badge color="info" className="inline-flex items-center mt-2">
+                      SID: {studentData.studentEmail?.split('@')[0].toUpperCase()}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
 
-        {/* Actions: Delete & Sign Out */}
-        <div className="flex justify-between text-red-500 mt-6">
-          <span onClick={() => setShowModal(true)} className="cursor-pointer">Delete Account</span>
-          <span className="cursor-pointer" onClick={handleSignOut}>Sign Out</span>
+              {/* Right Column - Form */}
+              <div className="md:w-2/3 md:pl-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Email Field */}
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                      Email Address
+                    </label>
+                    <TextInput 
+                      type="email" 
+                      id="email" 
+                      value={currentUser.email} 
+                      readOnly 
+                      icon={HiMail}
+                      className="bg-gray-50 cursor-not-allowed"
+                      shadow
+                    />
+                  </div>
+                  
+                  {/* Username Field */}
+                  <div>
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                      Username
+                    </label>
+                    <TextInput 
+                      type="text" 
+                      id="username" 
+                      placeholder="Enter your username" 
+                      defaultValue={currentUser.username} 
+                      onChange={handleChange} 
+                      icon={HiUser}
+                      shadow
+                    />
+                  </div>
+                  
+                  {/* Password Field */}
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                      New Password
+                    </label>
+                    <TextInput 
+                      type="password" 
+                      id="password" 
+                      placeholder="Enter new password" 
+                      onChange={handleChange} 
+                      icon={HiLockClosed}
+                      shadow
+                    />
+                  </div>
+                  
+                  {/* Alerts */}
+                  {updateSuccessMessage && (
+                    <Alert color="success" className="mt-4">
+                      {updateSuccessMessage}
+                    </Alert>
+                  )}
+                  
+                  {updateErrorMessage && (
+                    <Alert color="failure" className="mt-4">
+                      {updateErrorMessage}
+                    </Alert>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+                    <Button 
+                      type="submit" 
+                      gradientDuoTone="purpleToBlue" 
+                      className="w-full sm:w-auto"
+                    >
+                      Update Profile
+                    </Button>
+                    
+                    <Button 
+                      color="failure" 
+                      outline 
+                      onClick={handleSignOut}
+                      className="w-full sm:w-auto"
+                    >
+                      Sign Out
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          ) : (
+            <AcademicMarks studentData={studentData} />
+          )}
         </div>
       </div>
     </div>

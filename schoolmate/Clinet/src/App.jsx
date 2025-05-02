@@ -43,6 +43,7 @@ import StaffContact from "./components/StaffContact";
 import AddIncomePage from "./components/AddIncome";
 import StaffAddBankdetails from "./components/StaffAddBankdetails";
 import Library from "./pages/Library";
+import SubjectMarks from "./components/subjectMarks";
 
 export default function App() {
   return (
@@ -71,6 +72,7 @@ export default function App() {
                   <Route path="/admin-finance" element={<AdminFinance />} />
                   <Route path="/admin-academy" element={<AdminAcademy />} />
                   <Route path="/admin-student" element={<AdminStudent />} />
+                  <Route path="/subject-marks/:subject/:grade" element={<SubjectMarks/>}/>
                   <Route path="/admin-staff" element={<AdminStaff />} />
                   <Route path="/admin-student-fee" element={<AdminStudentFees />} />
                   <Route path="/admin-staff-salary" element={<AdminStaffSalary />} />

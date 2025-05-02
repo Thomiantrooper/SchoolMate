@@ -19,7 +19,7 @@
     "firebase": "^11.4.0",
     "flowbite-react": "^0.10.2",
     "framer-motion": "^12.5.0",
-    "jspdf": "^3.0.0",
+    "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.479.0",
     "react": "^19.0.0",

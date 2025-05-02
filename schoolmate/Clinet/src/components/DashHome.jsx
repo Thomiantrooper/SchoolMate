@@ -81,10 +81,15 @@ export default function DashHome() {
 
       {/* Feature Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-700 text-white" : "bg-blue-600 text-white"}`}>
-          <h3 className="text-xl font-semibold">📋 Manage Students</h3>
-          <p className="mt-2">Easily add, edit, and remove student records.</p>
-        </motion.div>
+      <motion.div
+  whileHover={{ scale: 1.05 }}
+  className={`p-5 rounded-lg shadow-md cursor-pointer ${darkMode ? "bg-gray-700 text-white" : "bg-blue-600 text-white"}`}
+  onClick={() => navigate("?tab=students")}
+>
+  <h3 className="text-xl font-semibold">📋 Manage Students</h3>
+  <p className="mt-2">Easily add, edit, and remove student records.</p>
+</motion.div>
+
 
         <motion.div whileHover={{ scale: 1.05 }} className={`p-5 rounded-lg shadow-md ${darkMode ? "bg-gray-600 text-white" : "bg-green-600 text-white"}`}>
           <h3 className="text-xl font-semibold">📖 View Student Details</h3>
@@ -95,17 +100,26 @@ export default function DashHome() {
           <h3 className="text-xl font-semibold">🔄 Track Attendance</h3>
           <p className="mt-2">Monitor student attendance in real-time.</p>
         </motion.div>
+
+        <motion.div 
+        whileHover={{ scale: 1.05 }}
+        className={`p-5 rounded-lg shadow-md cursor-pointer ${darkMode ? "bg-gray-700 text-white" : "bg-blue-600 text-white"}`}
+        onClick={() => navigate("?tab=subjects")}
+        >
+          <h3 className="text-xl font-semibold">➡️ Subjects</h3>
+          <p className="mt-2">View all Subjects.</p>
+        </motion.div>
       </div>
 
       {/* Add Student Button */}
-      <div className="mt-8 flex justify-center">
+      {/* <div className="mt-8 flex justify-center">
         <motion.div whileHover={{ scale: 1.1 }}>
-        <Button onClick={() => navigate("/admin-student")} gradientDuoTone="greenToBlue">
-  Add Student
-</Button>
+        <Button onClick={() => navigate("?tab=students")} gradientDuoTone="greenToBlue">
+        Add Student
+      </Button>
 
         </motion.div>
-      </div>
+      </div> */}
 
       {/* Add Student Modal */}
       <Modal show={isAddModalOpen} size="lg" onClose={closeAddModal}>

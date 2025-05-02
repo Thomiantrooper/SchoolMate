@@ -108,6 +108,101 @@ export const getStudents = async (req, res) => {
   }
 };
 
+// Get student by user ID
+export const getStudentByUserId = async (req, res) => {
+  try {
+    const student = await Student.findOne({ userId: req.params.id });
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+    res.status(200).json(student);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get Students ByGrade
+export const getStudentsByGrade = async (req, res) => {
+  try {
+    const query = { grade: req.params.grade };
+    const projection = req.query.fields
+      ? req.query.fields.split(",").join(" ")
+      : "";
+
+    const students = await Student.find(query, projection);
+    res.status(200).json(students);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update student marks
+export const updateStudentMarks = async (req, res) => {
+  try {
+    const { subject, grade, marks } = req.body;
+    const studentId = req.params.id;
+
+    // Validate input
+    if (!subject || !grade) {
+      return res.status(400).json({ error: "Subject and grade are required" });
+    }
+
+    // Find the student
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // Validate marks
+    const validateMark = (mark) => {
+      if (mark === null || mark === undefined || mark === "") return null;
+      const num = Number(mark);
+      return num >= 0 && num <= 100 ? num : null;
+    };
+
+    const validatedMarks = {
+      firstTerm: validateMark(marks.firstTerm),
+      secondTerm: validateMark(marks.secondTerm),
+      thirdTerm: validateMark(marks.thirdTerm),
+    };
+
+    // Check if marks for this subject already exist
+    const existingMarkIndex = student.marks.findIndex(
+      (m) => m.subject === subject
+    );
+
+    if (existingMarkIndex >= 0) {
+      // Update existing marks
+      student.marks[existingMarkIndex] = {
+        subject,
+        grade: Number(grade),
+        ...validatedMarks,
+      };
+    } else {
+      // Add new marks
+      student.marks.push({
+        subject,
+        grade: Number(grade),
+        ...validatedMarks,
+      });
+    }
+
+    // Save the updated student
+    const updatedStudent = await student.save();
+
+    res.status(200).json({
+      message: "Marks updated successfully",
+      student: updatedStudent,
+    });
+  } catch (error) {
+    console.error("Error updating marks:", error);
+    res.status(500).json({
+      error: "Failed to update marks",
+      details: error.message,
+    });
+  }
+};
+
 // Update Student
 export const updateStudent = async (req, res) => {
   try {
