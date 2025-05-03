@@ -1,23 +1,20 @@
 import { useState, useContext, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Button, Modal, TextInput, Label } from "flowbite-react";
+import { Button, Modal, TextInput, Label, Spinner, Table, Badge } from "flowbite-react";
 import { ThemeContext } from "../components/ThemeLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { HiPlus, HiPencil, HiTrash, HiUserGroup, HiBookOpen } from "react-icons/hi";
 
 export default function AdminSubjects() {
   const { darkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
-  const [isAddSubjectModalOpen, setIsAddSubjectModalOpen] = useState(false);
-  const [isEditSubjectModalOpen, setIsEditSubjectModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("add");
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [subjects, setSubjects] = useState([]);
-  const [newSubject, setNewSubject] = useState({
-    subjectName: "",
-    grade: "",
-  });
-  const [validationError, setValidationError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({ subjectName: "", grade: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchSubjects();
@@ -25,302 +22,233 @@ export default function AdminSubjects() {
 
   const fetchSubjects = async () => {
     try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/api/subject/all");
-
-      // Sort by grade ascending as a secondary measure
-      const sortedSubjects = response.data.sort((a, b) => a.grade - b.grade);
-      setSubjects(sortedSubjects);
-    } catch (error) {
-      console.error("Error fetching subjects:", error);
-      setValidationError("Failed to fetch subjects. Please try again.");
+      setLoading(true);
+      const response = await axios.get("/api/subject/all");
+      setSubjects(response.data.sort((a, b) => a.grade - b.grade));
+    } catch (err) {
+      setError("Failed to fetch subjects");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const openAddSubjectModal = () => setIsAddSubjectModalOpen(true);
-  const closeAddSubjectModal = () => {
-    setIsAddSubjectModalOpen(false);
-    resetSubjectForm();
-    setValidationError("");
+  const openModal = (type, subject = null) => {
+    setModalType(type);
+    setSelectedSubject(subject);
+    if (type === "edit") {
+      setFormData({
+        subjectName: subject.subjectName,
+        grade: subject.grade.toString()
+      });
+    }
+    setModalOpen(true);
   };
 
-
-const openEditSubjectModal = (subject) => {
-  setSelectedSubject(subject);
-  setNewSubject({
-    subjectName: subject.subjectName,
-    grade: subject.grade.toString(),
-  });
-  setIsEditSubjectModalOpen(true);
-  setValidationError("");
-};
-
-
-const closeEditSubjectModal = () => {
-  setIsEditSubjectModalOpen(false);
-  resetSubjectForm();
-  setValidationError("");
-};
-
-  const resetSubjectForm = () => {
-    setNewSubject({
-      subjectName: "",
-      grade: "",
-    });
+  const closeModal = () => {
+    setModalOpen(false);
+    setFormData({ subjectName: "", grade: "" });
+    setError("");
   };
 
-  const validateForm = () => {
-    if (!newSubject.subjectName || !newSubject.grade) {
-      setValidationError("Please fill in all fields before submitting.");
-      return false;
+  const handleSubmit = async () => {
+    if (!formData.subjectName || !formData.grade) {
+      setError("All fields are required");
+      return;
     }
 
-    const grade = parseInt(newSubject.grade);
-    if (isNaN(grade) || grade < 6 || grade > 13) {
-      setValidationError("Grade must be between 6 and 13.");
-      return false;
+    const grade = parseInt(formData.grade);
+    if (grade < 6 || grade > 13) {
+      setError("Grade must be 6-13");
+      return;
     }
-
-    setValidationError("");
-    return true;
-  };
-
-  const handleAddSubject = async () => {
-    if (!validateForm()) return;
 
     try {
-      setIsLoading(true);
-      
-      const subjectData = {
-        subjectName: newSubject.subjectName,
-        grade: parseInt(newSubject.grade),
-      };
-      
-      const response = await axios.post(
-        "http://localhost:3000/api/subject/add", 
-        subjectData,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      
-      if (response.status === 201) {
-        fetchSubjects();
-        closeAddSubjectModal();
+      setLoading(true);
+      if (modalType === "add") {
+        await axios.post("/api/subject/add", {
+          subjectName: formData.subjectName,
+          grade: grade
+        });
+      } else {
+        await axios.put(`/api/subject/update/${selectedSubject._id}`, {
+          subjectName: formData.subjectName,
+          grade: grade
+        });
       }
-    } catch (error) {
-      console.error("Error adding subject:", error);
-      setValidationError(
-        error.response?.data?.error || 
-        "Failed to add subject. Please try again."
-      );
+      fetchSubjects();
+      closeModal();
+    } catch (err) {
+      setError(err.response?.data?.error || "Operation failed");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleEditSubject = async () => {
-    if (!validateForm()) return;
-  
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this subject?")) return;
     try {
-      setIsLoading(true);
-      const response = await axios.put(
-        `http://localhost:3000/api/subject/update/${selectedSubject._id}`,
-        {
-          subjectName: newSubject.subjectName,
-          grade: parseInt(newSubject.grade),
-        }
-      );
-      
-      setSubjects(subjects.map(subject => 
-        subject._id === selectedSubject._id ? response.data : subject
-      ));
-      closeEditSubjectModal();
-    } catch (error) {
-      console.error("Error updating subject:", error);
-      setValidationError(
-        error.response?.data?.error || 
-        "Failed to update subject. Please try again."
-      );
+      setLoading(true);
+      await axios.delete(`/api/subject/delete/${id}`);
+      setSubjects(subjects.filter(s => s._id !== id));
+    } catch (err) {
+      setError("Failed to delete subject");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleDeleteSubject = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this subject?");
-    if (!confirmDelete) return;
-  
-    try {
-      setIsLoading(true);
-      await axios.delete(`http://localhost:3000/api/subject/delete/${id}`);
-      setSubjects(subjects.filter(subject => subject._id !== id));
-    } catch (error) {
-      console.error("Error deleting subject:", error);
-      setValidationError(
-        error.response?.data?.error || 
-        "Failed to delete subject. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const gradeColors = {
+    6: "blue", 7: "green", 8: "purple", 9: "pink",
+    10: "indigo", 11: "yellow", 12: "red", 13: "cyan"
   };
 
   return (
-    <div className={`p-6 flex flex-col items-center w-full min-h-screen transition-all duration-300 ${
-      darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-    }`}>
-      {/* Header */}
-      <div
-        className="w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md mb-6 bg-opacity-80 transition-all duration-300"
-        style={{ background: darkMode ? "#1E293B" : "#ffffff" }}
-      >
-        <h1 className="text-2xl font-bold">Subjects Management</h1>
-        <div className="flex gap-8">
-          <div className="mt-8">
-            <motion.div whileHover={{ scale: 1.1 }}>
-              <Button onClick={openAddSubjectModal} gradientDuoTone="greenToBlue" disabled={isLoading}>
-                {isLoading ? "Loading..." : "Add Subject"}
-              </Button>
-            </motion.div>
+    <div className={`p-6 ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold flex items-center gap-2">
+              <HiBookOpen className="text-blue-500" />
+              Subjects Management
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage all subjects and student records
+            </p>
           </div>
+          <Button
+            onClick={() => openModal("add")}
+            gradientDuoTone="cyanToBlue"
+            size="sm"
+          >
+            <HiPlus className="mr-2" />
+            Add Subject
+          </Button>
         </div>
-      </div>
 
-      {/* Subjects Table */}
-      <div
-        className="w-full max-w-6xl p-4 rounded-lg shadow-md mb-6 transition-all duration-300"
-        style={{ background: darkMode ? "#1E293B" : "#ffffff" }}
-      >
-        <h2 className="text-lg font-semibold mb-3">📚 Subjects List</h2>
-        {isLoading ? (
-          <div className="text-center py-4">Loading subjects...</div>
-        ) : subjects.length === 0 ? (
-          <div className="text-center py-4">No subjects found</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className="p-2 text-left">Subject Code</th>
-                  <th className="p-2 text-left">Subject Name</th>
-                  <th className="p-2 text-left">Grade</th>
-                  <th className="p-2 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subjects.map((subject) => (
-                  <tr key={subject._id} className="border-t">
-                    <td className="p-2 font-mono">{subject.subjectCode}</td>
-                    <td className="p-2">{subject.subjectName}</td>
-                    <td className="p-2">Grade {subject.grade}</td>
-                    <td className="p-2">
-                      <div className="flex space-x-2">
-                        <Button size="xs" onClick={() => openEditSubjectModal(subject)} disabled={isLoading}>
-                          Edit
-                        </Button>
-                        <Button size="xs" color="red" onClick={() => handleDeleteSubject(subject._id)}  disabled={isLoading}>
-                          Delete
-                        </Button>
-                        <Button 
-  size="xs" 
-  color="green" 
-  disabled={isLoading}
-  onClick={() => navigate(`/subject-marks/${subject.subjectName}/${subject.grade}`)}
->
-  View Students
-</Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-6 text-sm">
+            {error}
           </div>
         )}
-      </div>
-      
-      <Modal
-  show={isAddSubjectModalOpen || isEditSubjectModalOpen}
-  size="lg"
-  onClose={isAddSubjectModalOpen ? closeAddSubjectModal : closeEditSubjectModal}
->
-  <Modal.Header>
-    {isEditSubjectModalOpen ? "Edit Subject" : "Add New Subject"}
-  </Modal.Header>
-  <Modal.Body>
-    <div className="space-y-4">
-      {validationError && (
-        <div className="text-red-500 text-sm mb-4 p-2 bg-red-50 rounded">
-          {validationError}
+
+        {/* Subjects Table */}
+        <div className="bg-white rounded-lg shadow border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          {loading && subjects.length === 0 ? (
+            <div className="p-8 text-center">
+              <Spinner size="xl" />
+            </div>
+          ) : subjects.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              No subjects found
+            </div>
+          ) : (
+            <Table hoverable>
+              <Table.Head>
+                <Table.HeadCell>Code</Table.HeadCell>
+                <Table.HeadCell>Subject</Table.HeadCell>
+                <Table.HeadCell>Grade</Table.HeadCell>
+                <Table.HeadCell>Actions</Table.HeadCell>
+              </Table.Head>
+              <Table.Body>
+                {subjects.map(subject => (
+                  <Table.Row key={subject._id}>
+                    <Table.Cell className="font-mono text-sm">
+                      {subject.subjectCode}
+                    </Table.Cell>
+                    <Table.Cell className="font-medium">
+                      {subject.subjectName}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Badge color={gradeColors[subject.grade] || "gray"}>
+                        Grade {subject.grade}
+                      </Badge>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div className="flex gap-2">
+                        <Button
+                          size="xs"
+                          color="light"
+                          onClick={() => openModal("edit", subject)}
+                        >
+                          <HiPencil />
+                        </Button>
+                        <Button
+                          size="xs"
+                          color="light"
+                          onClick={() => navigate(`/subject-marks/${subject.subjectName}/${subject.grade}`)}
+                        >
+                          <HiUserGroup />
+                        </Button>
+                        <Button
+                          size="xs"
+                          color="failure"
+                          onClick={() => handleDelete(subject._id)}
+                        >
+                          <HiTrash />
+                        </Button>
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          )}
         </div>
-      )}
-
-      {isEditSubjectModalOpen && (
-        <div>
-          <Label htmlFor="subjectCode">Subject Code</Label>
-          <TextInput
-            id="subjectCode"
-            type="text"
-            value={selectedSubject?.subjectCode || ''}
-            className="w-full"
-            readOnly
-            disabled
-          />
-        </div>
-      )}
-
-      <div>
-        <Label htmlFor="subjectName">Subject Name</Label>
-        <TextInput
-          id="subjectName"
-          type="text"
-          value={newSubject.subjectName}
-          onChange={(e) => setNewSubject({ ...newSubject, subjectName: e.target.value })}
-          className="w-full"
-          required
-          disabled={isLoading}
-        />
       </div>
 
-      <div>
-        <Label htmlFor="grade">Grade (6-13)</Label>
-        <TextInput
-          id="grade"
-          type="number"
-          value={newSubject.grade}
-          onChange={(e) => setNewSubject({ ...newSubject, grade: e.target.value })}
-          min="6"
-          max="13"
-          className="w-full"
-          required
-          disabled={isLoading}
-        />
-      </div>
-    </div>
-  </Modal.Body>
-  <Modal.Footer>
-    <Button 
-      onClick={isEditSubjectModalOpen ? handleEditSubject : handleAddSubject} 
-      disabled={isLoading}
-    >
-      {isLoading ? "Processing..." : isEditSubjectModalOpen ? "Update" : "Add"} Subject
-    </Button>
-    <Button 
-      color="gray" 
-      onClick={isAddSubjectModalOpen ? closeAddSubjectModal : closeEditSubjectModal} 
-      disabled={isLoading}
-    >
-      Cancel
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-
+      {/* Subject Modal */}
+      <Modal show={modalOpen} onClose={closeModal} size="md">
+        <Modal.Header>
+          {modalType === "add" ? "Add Subject" : "Edit Subject"}
+        </Modal.Header>
+        <Modal.Body>
+          <div className="space-y-4">
+            {modalType === "edit" && (
+              <div>
+                <Label>Subject Code</Label>
+                <TextInput
+                  value={selectedSubject?.subjectCode || ""}
+                  readOnly
+                  disabled
+                />
+              </div>
+            )}
+            <div>
+              <Label>Subject Name</Label>
+              <TextInput
+                value={formData.subjectName}
+                onChange={(e) => setFormData({...formData, subjectName: e.target.value})}
+                placeholder="Mathematics"
+              />
+            </div>
+            <div>
+              <Label>Grade Level (6-13)</Label>
+              <TextInput
+                type="number"
+                min="6"
+                max="13"
+                value={formData.grade}
+                onChange={(e) => setFormData({...formData, grade: e.target.value})}
+                placeholder="10"
+              />
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="light" onClick={closeModal}>
+            Cancel
+          </Button>
+          <Button
+            gradientDuoTone="cyanToBlue"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? <Spinner size="sm" /> : modalType === "add" ? "Add Subject" : "Save Changes"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

@@ -1,216 +1,186 @@
-import { useEffect, useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Table, Button, Alert, Modal, TextInput, Label } from "flowbite-react";
-import { ThemeContext } from "../components/ThemeLayout";
-import axios from "axios";
+import React from 'react';
+import {
+  HiAcademicCap,
+  HiChartBar,
+  HiDownload,
+  HiUserCircle,
+  HiTrendingUp,
+  HiOutlineClipboardList,
+} from 'react-icons/hi';
+import { Progress, Badge, Button } from 'flowbite-react';
+import { motion } from 'framer-motion';
 
-export default function SubjectMarks() {
-  const { darkMode } = useContext(ThemeContext);
-  const { subject, grade } = useParams();
-  const navigate = useNavigate();
-
-  const [students, setStudents] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [marks, setMarks] = useState({
-    firstTerm: "",
-    secondTerm: "",
-    thirdTerm: "",
-  });
-
-  useEffect(() => {
-    fetchStudentsByGrade();
-  }, [grade]);
-
-  const fetchStudentsByGrade = async () => {
-    setLoading(true);
-    try {
-      setError("");
-      const response = await axios.get(
-        `http://localhost:3000/api/student/grade/${grade}`
-      );
-      setStudents(response.data);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load students.");
-    } finally {
-      setLoading(false);
-    }
+const StudentAcademicProfile = () => {
+  const studentData = {
+    name: 'Sahan Gamage',
+    terms: [
+      {
+        name: '1st Term',
+        subjectsCount: 2,
+        total: 55,
+        average: 27.5,
+        progress: 28,
+        icon: <HiOutlineClipboardList className="text-blue-600" />,
+        color: 'blue',
+      },
+      {
+        name: '2nd Term',
+        subjectsCount: 5,
+        total: 350,
+        average: 70,
+        progress: 70,
+        icon: <HiOutlineClipboardList className="text-green-600" />,
+        color: 'green',
+      },
+    ],
   };
 
-  const getMarksForSubject = (student) => {
-    return student.marks?.find((m) => m.subject === subject) || {};
-  };
-
-  const handleEditClick = (student) => {
-    setSelectedStudent(student);
-
-    const existingMarks = getMarksForSubject(student);
-    setMarks({
-      firstTerm: existingMarks.firstTerm || "",
-      secondTerm: existingMarks.secondTerm || "",
-      thirdTerm: existingMarks.thirdTerm || "",
-    });
-
-    setOpenModal(true);
-  };
-
-  const handleSaveMarks = async () => {
-    if (!selectedStudent) return;
-  
-    try {
-      const payload = {
-        subject,
-        grade: Number(grade),
-        marks: {
-          firstTerm: marks.firstTerm === "" ? null : Number(marks.firstTerm),
-          secondTerm: marks.secondTerm === "" ? null : Number(marks.secondTerm),
-          thirdTerm: marks.thirdTerm === "" ? null : Number(marks.thirdTerm),
-        }
-      };
-  
-      await axios.post(
-        `http://localhost:3000/api/student/${selectedStudent._id}/marks`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-  
-      setOpenModal(false);
-      fetchStudentsByGrade();
-    } catch (error) {
-      console.error("Failed to save marks", error?.response?.data || error.message);
-      setError(error?.response?.data?.error || "Failed to save marks.");
-    }
+  const colorMap = {
+    blue: 'bg-blue-100 text-blue-600',
+    red: 'bg-red-100 text-red-600',
+    green: 'bg-green-100 text-green-600',
+    yellow: 'bg-yellow-100 text-yellow-600',
+    gray: 'bg-gray-100 text-gray-600',
   };
 
   return (
-    <div
-      className={`p-6 min-h-screen transition-all duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}
-    >
-      <div className="max-w-6xl mx-auto flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">
-          {subject} Students in Grade {grade}
-        </h1>
-        <Button onClick={() => navigate(-1)} color="gray">
-          Back
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-indigo-100 rounded-full text-indigo-600">
+            <HiUserCircle size={32} />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Student Profile</h1>
+            <p className="text-gray-600">Manage your account information</p>
+          </div>
+        </div>
+        <Button outline gradientDuoTone="purpleToBlue" className="flex items-center gap-2">
+          <HiDownload /> Download Full Report
         </Button>
       </div>
 
-      {error && (
-        <div className="max-w-6xl mx-auto mb-4">
-          <Alert color="failure">{error}</Alert>
-        </div>
-      )}
-
-      {loading && <div className="max-w-6xl mx-auto mb-4 text-center">Loading...</div>}
-
-      <div
-        className="max-w-6xl mx-auto overflow-x-auto rounded-lg shadow"
-        style={{ background: darkMode ? "#1E293B" : "#ffffff" }}
-      >
-        <Table hoverable>
-          <Table.Head>
-            <Table.HeadCell>Student ID</Table.HeadCell>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell>Grade & Section</Table.HeadCell>
-            <Table.HeadCell>First Term</Table.HeadCell>
-            <Table.HeadCell>Second Term</Table.HeadCell>
-            <Table.HeadCell>Third Term</Table.HeadCell>
-            <Table.HeadCell>Actions</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className="divide-y">
-            {students.map((student) => {
-              const m = getMarksForSubject(student);
-              return (
-                <Table.Row
-                  key={student._id}
-                  className={darkMode ? "bg-gray-800" : "bg-white"}
-                >
-                  <Table.Cell className="font-mono">
-                    {student.studentEmail?.split("@")[0].toUpperCase()}
-                  </Table.Cell>
-                  <Table.Cell>{student.name}</Table.Cell>
-                  <Table.Cell>{`${student.grade}${student.section}`}</Table.Cell>
-                  <Table.Cell>{m.firstTerm ?? "-"}</Table.Cell>
-                  <Table.Cell>{m.secondTerm ?? "-"}</Table.Cell>
-                  <Table.Cell>{m.thirdTerm ?? "-"}</Table.Cell>
-                  <Table.Cell>
-                    <Button size="xs" onClick={() => handleEditClick(student)}>
-                      Add/Edit
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table>
+      {/* Navigation */}
+      <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+        <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium whitespace-nowrap">
+          Academic Marks
+        </button>
+        <button className="px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap">
+          Activities
+        </button>
+        <button className="px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap">
+          Download Report
+        </button>
       </div>
 
-      {/* Modal */}
-      <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header>
-          {selectedStudent ? `Edit Marks for ${selectedStudent.name}` : "Edit Marks"}
-        </Modal.Header>
-        <Modal.Body>
-          <form className="space-y-4">
-            <div>
-              <Label htmlFor="firstTerm" value="First Term Marks" />
-              <TextInput
-                id="firstTerm"
-                type="number"
-                value={marks.firstTerm}
-                onChange={(e) =>
-                  setMarks((prev) => ({
-                    ...prev,
-                    firstTerm: e.target.value,
-                  }))
-                }
-              />
+      {/* Student Profile Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100"
+      >
+        <div className="flex items-center gap-4 mb-6">
+          <div className="p-3 bg-blue-100 rounded-full text-blue-600">
+            <HiAcademicCap size={24} />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800">Academic Overview</h2>
+        </div>
+
+        {/* Term Reports */}
+        {studentData.terms.map((term, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: index * 0.1 }}
+            className="mb-6 last:mb-0"
+          >
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full ${colorMap[term.color] || colorMap.gray}`}>
+                  {term.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">{term.name} Report</h3>
+                <Badge color="gray" className="ml-2">
+                  {term.subjectsCount} subjects assessed
+                </Badge>
+              </div>
+
+              <div className="flex gap-3">
+                <Badge color="green" className="px-3 py-1.5">
+                  <span className="font-medium">Total:</span> {term.total}
+                </Badge>
+                <Badge color="blue" className="px-3 py-1.5">
+                  <span className="font-medium">Average:</span> {term.average}
+                </Badge>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="secondTerm" value="Second Term Marks" />
-              <TextInput
-                id="secondTerm"
-                type="number"
-                value={marks.secondTerm}
-                onChange={(e) =>
-                  setMarks((prev) => ({
-                    ...prev,
-                    secondTerm: e.target.value,
-                  }))
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Performance Progress</span>
+                <span className="font-medium">{term.progress}%</span>
+              </div>
+              <Progress
+                progress={term.progress}
+                color={
+                  term.progress >= 75
+                    ? 'green'
+                    : term.progress >= 50
+                    ? 'yellow'
+                    : 'red'
                 }
+                size="lg"
+                className="h-3"
               />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Needs Improvement</span>
+                <span>Excellent</span>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="thirdTerm" value="Third Term Marks" />
-              <TextInput
-                id="thirdTerm"
-                type="number"
-                value={marks.thirdTerm}
-                onChange={(e) =>
-                  setMarks((prev) => ({
-                    ...prev,
-                    thirdTerm: e.target.value,
-                  }))
-                }
-              />
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Additional Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white p-6 rounded-xl shadow-md border border-gray-100"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-purple-100 rounded-full text-purple-600">
+              <HiTrendingUp size={20} />
             </div>
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={handleSaveMarks}>Save</Button>
-          <Button color="gray" onClick={() => setOpenModal(false)}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal>
+            <h3 className="text-lg font-semibold text-gray-800">Performance Trends</h3>
+          </div>
+          <p className="text-gray-600">
+            View your academic progress over time and identify areas for improvement.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white p-6 rounded-xl shadow-md border border-gray-100"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-green-100 rounded-full text-green-600">
+              <HiChartBar size={20} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800">Subject Analysis</h3>
+          </div>
+          <p className="text-gray-600">
+            Detailed breakdown of your performance in each subject area.
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
-}
+};
+
+export default StudentAcademicProfile;

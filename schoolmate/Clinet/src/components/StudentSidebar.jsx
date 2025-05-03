@@ -66,7 +66,7 @@ export default function StudentPortal() {
           <SidebarButton label="📝 Exam Portal" to="/student-page/student-portal?tab=exam-portal" active={tab === "exam-portal"} />
           <SidebarButton label="📖 Homework Portal" to="/student-page/student-portal?tab=homework-portal" active={tab === "homework-portal"} />
           <SidebarButton label="💰 School Fee Portal" to="/student-page/student-portal?tab=school-fee-portal" active={tab === "school-fee-portal"} />
-          <SidebarButton label="📂 Student Records" to="/student-page/student-portal?tab=student-records" active={tab === "student-records"} />
+          {/* <SidebarButton label="📂 Student Records" to="/student-page/student-portal?tab=student-records" active={tab === "student-records"} /> */}
         </div>
       </div>
       
@@ -75,7 +75,7 @@ export default function StudentPortal() {
       {tab === 'exam-portal' && <ExamPortal />}
       {tab === 'homework-portal' && <HomeworkPortal />}
       {tab === 'school-fee-portal' && <SchoolFeePortal />}
-      {tab === 'student-records' && <StudentRecords />}
+      {/* {tab === 'student-records' && <StudentRecords />} */}
     </div>
   );
 }

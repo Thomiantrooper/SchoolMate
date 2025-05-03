@@ -23,6 +23,7 @@ export default function AdminStudentFees() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState("");
+  const [filterClass, setFilterClass] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,6 +90,7 @@ export default function AdminStudentFees() {
 
   const filteredFees = fees.filter(fee => 
     (selectedMonth === "" || fee.month === selectedMonth) &&
+    (filterClass === "" || fee.grade === filterClass) &&
     (
       fee.userId?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       fee.userId?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -116,8 +118,8 @@ export default function AdminStudentFees() {
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row  items-start md:items-center mb-8 gap-4">
-        <button
+        <div className="flex flex-col md:flex-row items-start md:items-center mb-8 gap-4">
+          <button
             onClick={() => window.location.href = "/dashboard?tab=finance"}
             className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
           >
@@ -133,12 +135,11 @@ export default function AdminStudentFees() {
               Review and manage student fee payments
             </p>
           </div>
-          
         </div>
 
         {/* Filters */}
         <div className={`mb-6 p-4 rounded-xl shadow-sm ${darkMode ? "bg-gray-800" : "bg-white"}`}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1 flex items-center gap-1">
                 <BsFilter />
@@ -152,6 +153,23 @@ export default function AdminStudentFees() {
                 <option value="">All Months</option>
                 {Array.from(new Set(fees.map(fee => fee.month))).map(month => (
                   <option key={month} value={month}>{month}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+                <FiBook />
+                Filter by Class
+              </label>
+              <select 
+                className={`w-full p-2 border rounded-lg ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
+                value={filterClass} 
+                onChange={(e) => setFilterClass(e.target.value)}
+              >
+                <option value="">All Classes</option>
+                {Array.from(new Set(fees.map(fee => fee.grade))).map(grade => (
+                  <option key={grade} value={grade}>{grade}</option>
                 ))}
               </select>
             </div>
@@ -328,15 +346,16 @@ export default function AdminStudentFees() {
               </div>
               <h3 className="text-lg font-medium mb-2">No payments found</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchQuery || selectedMonth 
+                {searchQuery || selectedMonth || filterClass
                   ? "No payments match your search criteria" 
                   : "No payment records available"}
               </p>
-              {(searchQuery || selectedMonth) && (
+              {(searchQuery || selectedMonth || filterClass) && (
                 <button
                   onClick={() => {
                     setSearchQuery("");
                     setSelectedMonth("");
+                    setFilterClass("");
                   }}
                   className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >

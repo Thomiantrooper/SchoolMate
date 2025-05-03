@@ -2,14 +2,12 @@ import { Link, useLocation } from "react-router-dom";
 
 export default function StaffSidebar() {
   const location = useLocation();
-  const urlParams = new URLSearchParams(location.search);
-  const tab = urlParams.get("tab");
 
   return (
     <div
       style={{
         width: "280px",
-        minHeight: "100vh", // Full height of the viewport
+        minHeight: "100vh",
         background: "linear-gradient(135deg, #004AAD, #6A1B9A)",
         color: "#fff",
         padding: "30px 15px",
@@ -22,14 +20,14 @@ export default function StaffSidebar() {
     >
       <h2 style={{ marginBottom: "30px", fontSize: "24px", fontWeight: "bold" }}>Staff Portal</h2>
 
-      {/* Sidebar Buttons Container */}
       <div style={{ width: "100%" }}>
-        <SidebarButton label="🏠 Profile" to="/staff-page/profile?tab=home" active={tab === "profile"} />
-        <SidebarButton label="📚 Modules" to="/staff-page/modules?tab=module" active={tab === "module"} />
-        <SidebarButton label="💰 Payments" to="/staff-page/payment?tab=payment" active={tab === "payment"} />
-        <SidebarButton label="📞 Contacts" to="/staff-page/contact?tab=contact" active={tab === "contact"} />
-        <SidebarButton label="📚📚 Exam" to="/staff-page/exam?tab=exam" active={tab === "exam"} />
-        <SidebarButton label="📚📚 Leave-Request" to="/staff-page/staff-leave?tab=staff-leave" active={tab === "staff-leave"} />
+        <SidebarButton label="🏠 Profile" to="/staff-page/profile" active={location.pathname.includes("profile")} />
+        <SidebarButton label="📚 Modules" to="/staff-page/modules" active={location.pathname.includes("modules")} />
+        <SidebarButton label="💰 Payments" to="/staff-page/payment" active={location.pathname.includes("payment")} />
+        <SidebarButton label="📞 Contacts" to="/staff-page/contact" active={location.pathname.includes("contact")} />
+        <SidebarButton label="📝 Exam" to="/staff-page/exam" active={location.pathname.includes("exam")} />
+        <SidebarButton label="🌴 Leave-Request" to="/staff-page/staff-leave" active={location.pathname.includes("staff-leave")} />
+        <SidebarButton label="📂 Student Records" to="/staff-page/staff-records" active={location.pathname.includes("staff-records")} />
       </div>
     </div>
   );
