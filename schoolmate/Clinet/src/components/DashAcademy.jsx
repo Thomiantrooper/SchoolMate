@@ -1,67 +1,157 @@
 import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "./ThemeLayout";
+import { 
+  Card, 
+  Button, 
+  Textarea, 
+  Table, 
+  Badge, 
+  Alert, 
+  Spinner,
+  Modal,
+  Toast
+} from "flowbite-react";
+import { 
+  HiAcademicCap, 
+  HiOutlineBell, 
+  HiOutlineDocumentAdd,
+  HiOutlineCalendar,
+  HiOutlineExclamation,
+  HiOutlineTrash,
+  HiOutlineCog,
+  HiOutlineCheckCircle,
+  HiOutlineSparkles
+} from "react-icons/hi";
 
 const DashAcademy = () => {
   const { darkMode } = useContext(ThemeContext);
-
   const [updates, setUpdates] = useState([]);
-  const [newUpdate, setNewUpdate] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
+  const [newUpdate, setNewUpdate] = useState({
+    title: "",
+    description: "",
+    priority: "normal"
+  });
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success"
+  });
+  const [stats, setStats] = useState({
+    courses: 24,
+    approvals: 5
+  });
 
-  // Load updates from localStorage when component mounts
+  // Load updates from localStorage
   useEffect(() => {
     const storedUpdates = localStorage.getItem("academyUpdates");
     if (storedUpdates) {
       setUpdates(JSON.parse(storedUpdates));
     } else {
       const initialUpdates = [
-        { id: 1, title: "New Course Added", description: "Machine Learning Basics course is now available.", date: "2025-03-01" },
-        { id: 2, title: "Exam Schedule Released", description: "Midterm exam schedule has been updated.", date: "2025-02-28" }
+        { 
+          id: 1, 
+          title: "New Course: Machine Learning", 
+          description: "Our new Machine Learning Basics course is now available for enrollment.", 
+          date: "2025-03-01",
+          priority: "high"
+        },
+        { 
+          id: 2, 
+          title: "Exam Schedule Update", 
+          description: "Midterm exam schedule has been updated. Please check your student portal.", 
+          date: "2025-02-28",
+          priority: "normal"
+        }
       ];
       setUpdates(initialUpdates);
       localStorage.setItem("academyUpdates", JSON.stringify(initialUpdates));
     }
   }, []);
 
-  // Save updates to localStorage whenever updates change
+  // Save updates to localStorage
   useEffect(() => {
     localStorage.setItem("academyUpdates", JSON.stringify(updates));
   }, [updates]);
 
-  // Auto-hide toast after 3 seconds
+  // Auto-hide toast
   useEffect(() => {
-    if (toastMessage) {
-      const timer = setTimeout(() => setToastMessage(""), 3000);
+    if (toast.show) {
+      const timer = setTimeout(() => setToast({...toast, show: false}), 3000);
       return () => clearTimeout(timer);
     }
-  }, [toastMessage]);
+  }, [toast]);
+
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+  };
 
   const handleAddUpdate = () => {
-    if (newUpdate.trim() !== "") {
+    if (!newUpdate.title.trim() || !newUpdate.description.trim()) {
+      showToast("Please fill all fields", "failure");
+      return;
+    }
+
+    setLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
       const newEntry = {
-        id: Date.now(), // unique ID
-        title: "New Update",
-        description: newUpdate.slice(0, 250), // limit to 250 chars
+        id: Date.now(),
+        title: newUpdate.title,
+        description: newUpdate.description,
+        priority: newUpdate.priority,
         date: new Date().toISOString().split('T')[0]
       };
-      setUpdates([newEntry, ...updates]); // newest first
-      setNewUpdate("");
-      setToastMessage("✅ Update Posted Successfully!");
-    }
+      
+      setUpdates([newEntry, ...updates]);
+      setNewUpdate({ title: "", description: "", priority: "normal" });
+      setShowModal(false);
+      showToast("Update posted successfully!");
+      setLoading(false);
+    }, 1000);
   };
 
   const handleDeleteUpdate = (id) => {
-    if (window.confirm("Are you sure you want to delete this update?")) {
-      setUpdates(updates.filter(update => update.id !== id));
-      setToastMessage("🗑️ Update Deleted Successfully!");
-    }
+    Modal.alert({
+      title: "Confirm Deletion",
+      body: "Are you sure you want to delete this update?",
+      icon: HiOutlineExclamation,
+      confirmText: "Delete",
+      confirmColor: "failure",
+      onConfirm: () => {
+        setUpdates(updates.filter(update => update.id !== id));
+        showToast("Update deleted", "warning");
+      }
+    });
   };
 
   const handleClearAll = () => {
-    if (window.confirm("Are you sure you want to clear ALL updates? This action cannot be undone.")) {
-      setUpdates([]);
-      setToastMessage("⚡ All Updates Cleared!");
-    }
+    Modal.alert({
+      title: "Clear All Updates",
+      body: "This will permanently remove all updates. Continue?",
+      icon: HiOutlineExclamation,
+      confirmText: "Clear All",
+      confirmColor: "failure",
+      onConfirm: () => {
+        setUpdates([]);
+        showToast("All updates cleared", "warning");
+      }
+    });
+  };
+
+  const getPriorityBadge = (priority) => {
+    const colors = {
+      high: "failure",
+      normal: "info",
+      low: "success"
+    };
+    return (
+      <Badge color={colors[priority]} className="w-fit capitalize">
+        {priority}
+      </Badge>
+    );
   };
 
   const isToday = (dateString) => {
@@ -70,129 +160,275 @@ const DashAcademy = () => {
   };
 
   return (
-    <div className={`relative p-6 flex flex-col items-center w-full min-h-[80vh] transition-all duration-300 ${
-      darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-    }`}>
-      
-      {/* Toast */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-md z-50">
-          {toastMessage}
-        </div>
-      )}
-
-      {/* Header */}
-      <div className={`w-full max-w-6xl flex justify-between items-center p-4 rounded-lg shadow-md mb-6 ${
-        darkMode ? "bg-gray-800" : "bg-white"
-      }`}>
-        <h1 className="text-2xl font-bold">📚 Academic Dashboard</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => window.location.href = "/admin-academy"}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
-          >
-            Admin Panel
-          </button>
-          <button
-            onClick={handleClearAll}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded"
-          >
-            Clear All
-          </button>
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-6xl mb-6">
-        <SummaryCard title="Total Courses" value="24" darkMode={darkMode} color="green" />
-        <SummaryCard title="Pending Approvals" value="5" darkMode={darkMode} color="red" />
-        <SummaryCard title="Total Announcements" value={updates.length.toString()} darkMode={darkMode} color="blue" />
-      </div>
-
-      {/* New Update Creator */}
-      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md mb-6 ${
-        darkMode ? "bg-gray-800" : "bg-white"
-      }`}>
-        <h2 className="text-lg font-semibold mb-2">Create New Academic Update</h2>
-        <textarea
-          maxLength={250}
-          className={`w-full p-2 border rounded mb-2 transition-all duration-300 ${
-            darkMode ? "bg-gray-700 border-gray-600 text-white" : "border-gray-300"
-          }`}
-          placeholder="Enter new update (max 250 characters)..."
-          value={newUpdate}
-          onChange={(e) => setNewUpdate(e.target.value)}
-        />
-        <div className="text-right text-xs mb-2 text-gray-400">
-          {newUpdate.length}/250 characters
-        </div>
-        <button
-          onClick={handleAddUpdate}
-          className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded w-full"
-        >
-          Post Update
-        </button>
-      </div>
-
-      {/* Updates Table */}
-      <div className={`w-full max-w-6xl p-4 rounded-lg shadow-md ${
-        darkMode ? "bg-gray-800" : "bg-white"
-      }`}>
-        <h2 className="text-lg font-semibold mb-2">Recent Academic Updates</h2>
-        {updates.length === 0 ? (
-          <p className="text-gray-500">No updates yet.</p>
-        ) : (
-          <table className="w-full border-collapse shadow-md">
-            <thead>
-              <tr className={`${darkMode ? "bg-gray-700" : "bg-gray-200"} text-left`}>
-                <th className="p-2">Title</th>
-                <th className="p-2">Description</th>
-                <th className="p-2">Date</th>
-                <th className="p-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {updates.map((update) => (
-                <tr key={update.id} className={`border-b ${darkMode ? "border-gray-600" : "border-gray-300"}`}>
-                  <td className="p-2 font-semibold">
-                    {update.title}
-                    {isToday(update.date) && (
-                      <span className="ml-2 text-xs bg-yellow-400 text-black px-2 py-0.5 rounded-full">Today</span>
-                    )}
-                  </td>
-                  <td className="p-2">{update.description}</td>
-                  <td className="p-2 text-gray-500">{update.date}</td>
-                  <td className="p-2">
-                    <button
-                      onClick={() => handleDeleteUpdate(update.id)}
-                      className="text-red-500 hover:text-red-700 font-bold"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className={`min-h-screen p-4 md:p-8 ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div className="max-w-7xl mx-auto">
+        {/* Toast Notification */}
+        {toast.show && (
+          <Toast className={`fixed top-4 right-4 z-50 ${toast.type === "failure" ? "bg-red-500" : toast.type === "warning" ? "bg-yellow-500" : "bg-green-500"}`}>
+            <div className="flex items-center">
+              {toast.type === "failure" ? (
+                <HiOutlineExclamation className="h-5 w-5 text-white" />
+              ) : toast.type === "warning" ? (
+                <HiOutlineExclamation className="h-5 w-5 text-white" />
+              ) : (
+                <HiOutlineCheckCircle className="h-5 w-5 text-white" />
+              )}
+              <div className="ml-3 text-sm font-normal text-white">
+                {toast.message}
+              </div>
+            </div>
+          </Toast>
         )}
+
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <HiAcademicCap className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+              Academic Dashboard
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Manage academic updates and course information
+            </p>
+          </div>
+          
+          <div className="flex gap-3 w-full md:w-auto">
+            <Button 
+              gradientMonochrome="cyan" 
+              onClick={() => setShowModal(true)}
+              className="w-full md:w-auto"
+            >
+              <HiOutlineDocumentAdd className="mr-2 h-5 w-5" />
+              New Update
+            </Button>
+            <Button 
+              gradientDuoTone="pinkToOrange" 
+              onClick={() => window.location.href = "/admin-academy"}
+              className="w-full md:w-auto"
+            >
+              <HiOutlineCog className="mr-2 h-5 w-5" />
+              Admin Panel
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatisticCard 
+            title="Total Courses" 
+            value={stats.courses} 
+            icon={HiAcademicCap}
+            color="indigo"
+            darkMode={darkMode}
+          />
+          <StatisticCard 
+            title="Pending Approvals" 
+            value={stats.approvals} 
+            icon={HiOutlineExclamation}
+            color="yellow"
+            darkMode={darkMode}
+          />
+          <StatisticCard 
+            title="Active Updates" 
+            value={updates.length} 
+            icon={HiOutlineBell}
+            color="green"
+            darkMode={darkMode}
+          />
+        </div>
+
+        {/* Updates Table */}
+        <Card className="p-0 overflow-hidden">
+          <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <HiOutlineBell className="w-5 h-5" />
+              Academic Updates
+            </h2>
+            <Button 
+              color="failure" 
+              size="xs" 
+              onClick={handleClearAll}
+              disabled={updates.length === 0}
+            >
+              <HiOutlineTrash className="mr-2 h-4 w-4" />
+              Clear All
+            </Button>
+          </div>
+          
+          {updates.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              <HiOutlineSparkles className="w-10 h-10 mx-auto mb-2" />
+              No updates yet. Create your first update above.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table hoverable className="rounded-none">
+                <Table.Head>
+                  <Table.HeadCell>Title</Table.HeadCell>
+                  <Table.HeadCell>Description</Table.HeadCell>
+                  <Table.HeadCell>Priority</Table.HeadCell>
+                  <Table.HeadCell>Date</Table.HeadCell>
+                  <Table.HeadCell>
+                    <span className="sr-only">Actions</span>
+                  </Table.HeadCell>
+                </Table.Head>
+                <Table.Body className="divide-y dark:divide-gray-700">
+                  {updates.map((update) => (
+                    <Table.Row key={update.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                      <Table.Cell className="font-medium text-gray-900 dark:text-white">
+                        <div className="flex items-center gap-2">
+                          {update.title}
+                          {isToday(update.date) && (
+                            <Badge color="info" className="text-xs">
+                              Today
+                            </Badge>
+                          )}
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell className="max-w-xs">
+                        <p className="truncate">{update.description}</p>
+                      </Table.Cell>
+                      <Table.Cell>
+                        {getPriorityBadge(update.priority)}
+                      </Table.Cell>
+                      <Table.Cell>
+                        <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                          <HiOutlineCalendar className="w-4 h-4" />
+                          {update.date}
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button 
+                          color="failure" 
+                          size="xs"
+                          onClick={() => handleDeleteUpdate(update.id)}
+                        >
+                          <HiOutlineTrash className="w-4 h-4" />
+                        </Button>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+          )}
+        </Card>
+
+        {/* Create Update Modal */}
+        <Modal show={showModal} onClose={() => setShowModal(false)} size="xl">
+          <Modal.Header>Create Academic Update</Modal.Header>
+          <Modal.Body>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="title" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Title*
+                </label>
+                <Textarea
+                  id="title"
+                  placeholder="Important Course Update"
+                  value={newUpdate.title}
+                  onChange={(e) => setNewUpdate({...newUpdate, title: e.target.value})}
+                  required
+                  rows={1}
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Description*
+                </label>
+                <Textarea
+                  id="description"
+                  placeholder="Detailed information about this update..."
+                  value={newUpdate.description}
+                  onChange={(e) => setNewUpdate({...newUpdate, description: e.target.value})}
+                  required
+                  rows={4}
+                  maxLength={250}
+                />
+                <div className="text-right text-xs mt-1 text-gray-500">
+                  {newUpdate.description.length}/250 characters
+                </div>
+              </div>
+              
+              <div>
+                <label htmlFor="priority" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Priority
+                </label>
+                <select
+                  id="priority"
+                  value={newUpdate.priority}
+                  onChange={(e) => setNewUpdate({...newUpdate, priority: e.target.value})}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                >
+                  <option value="low">Low</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="flex justify-end gap-3">
+            <Button 
+              color="gray" 
+              onClick={() => setShowModal(false)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button 
+              gradientDuoTone="cyanToBlue"
+              onClick={handleAddUpdate}
+              disabled={loading || !newUpdate.title || !newUpdate.description}
+            >
+              {loading ? (
+                <Spinner size="sm" />
+              ) : (
+                "Post Update"
+              )}
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );
 };
 
-// Small reusable card component
-const SummaryCard = ({ title, value, darkMode, color }) => {
+// Statistic Card Component
+const StatisticCard = ({ title, value, icon: Icon, color, darkMode }) => {
   const colorClasses = {
-    green: darkMode ? "bg-green-800" : "bg-green-100 text-green-700",
-    red: darkMode ? "bg-red-800" : "bg-red-100 text-red-700",
-    blue: darkMode ? "bg-blue-800" : "bg-blue-100 text-blue-700",
+    indigo: {
+      bg: darkMode ? "bg-indigo-900" : "bg-indigo-100",
+      text: darkMode ? "text-indigo-300" : "text-indigo-700",
+      iconBg: darkMode ? "bg-indigo-800" : "bg-indigo-200",
+      iconColor: darkMode ? "text-indigo-400" : "text-indigo-600"
+    },
+    yellow: {
+      bg: darkMode ? "bg-yellow-900" : "bg-yellow-100",
+      text: darkMode ? "text-yellow-300" : "text-yellow-700",
+      iconBg: darkMode ? "bg-yellow-800" : "bg-yellow-200",
+      iconColor: darkMode ? "text-yellow-400" : "text-yellow-600"
+    },
+    green: {
+      bg: darkMode ? "bg-green-900" : "bg-green-100",
+      text: darkMode ? "text-green-300" : "text-green-700",
+      iconBg: darkMode ? "bg-green-800" : "bg-green-200",
+      iconColor: darkMode ? "text-green-400" : "text-green-600"
+    }
   };
 
   return (
-    <div className={`p-4 rounded-lg shadow-md ${colorClasses[color]} transition-all duration-300`}>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="text-2xl font-bold">{value}</p>
-    </div>
+    <Card className={`hover:shadow-lg transition-shadow ${colorClasses[color].bg} ${colorClasses[color].text}`}>
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-sm font-medium">{title}</h3>
+          <p className="text-2xl font-bold">{value}</p>
+        </div>
+        <div className={`p-3 rounded-full ${colorClasses[color].iconBg}`}>
+          <Icon className={`w-6 h-6 ${colorClasses[color].iconColor}`} />
+        </div>
+      </div>
+    </Card>
   );
 };
 

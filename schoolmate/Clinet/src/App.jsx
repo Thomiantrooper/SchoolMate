@@ -44,6 +44,8 @@ import AddIncomePage from "./components/AddIncome";
 import StaffAddBankdetails from "./components/StaffAddBankdetails";
 import Library from "./pages/Library";
 import SubjectMarks from "./components/subjectMarks";
+import StaffRecords from "./components/StaffRecords";
+import StaffTracker from "./pages/StaffTracker";
 
 export default function App() {
   return (
@@ -88,6 +90,7 @@ export default function App() {
                   <Route path="/admin-income/add/:incomeId" element={<AddIncomePage />} />
                   <Route path="/staff-add" element={<AddStaff />} />
                   <Route path="/library" element={<Library />} />
+                  <Route path="/staff-track" element={<StaffTracker />} />
                 </Route>
               </Routes>
               <Footer />
@@ -127,6 +130,8 @@ export default function App() {
                 <Route path="/exam" element={<StaffExam />} />
                 <Route path="/staff-leave" element={<StaffLeave />} />
                 <Route path="/bank-details" element={<StaffAddBankdetails />} />
+                <Route path="/staff-records" element={<StaffRecords />} />
+                
               </Routes>
               <StaffFooter />
             </ThemeLayout>

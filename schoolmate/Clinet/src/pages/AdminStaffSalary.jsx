@@ -26,8 +26,8 @@ export default function AdminStaffSalary() {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState(new Date().getFullYear());
   const [selectedStaff, setSelectedStaff] = useState(null);
-  const [bonus, setBonus] = useState(0);
-  const [leaveSalary, setLeaveSalary] = useState(0);
+  const [bonus, setBonus] = useState("");
+  const [leaveSalary, setLeaveSalary] = useState("");
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -91,10 +91,12 @@ const availableYears = [...new Set(
     setLoading(true);
   
     try {
+      const bonusValue = Number(bonus) || 0;
+      const leaveSalaryValue = Number(leaveSalary) || 0;
       const bonusData = {
         userId: selectedStaff.userId,
-        bonus,
-        leaveSalary,
+        bonus: bonusValue,
+        leaveSalary: leaveSalaryValue,
         month: selectedStaff.salaryDetails?.month,
         year: selectedStaff.salaryDetails?.year,
         status: selectedStaff.salaryDetails?.status,
@@ -111,6 +113,7 @@ const availableYears = [...new Set(
           )
         );
         setIsModalOpen(false);
+        window.location.reload();
       }
     } catch (error) {
       console.error("Error updating bonus/leave salary:", error);
@@ -146,6 +149,7 @@ const availableYears = [...new Set(
               : s
           )
         );
+        window.location.reload();
       }
     } catch (error) {
       console.error("Error updating salary status:", error);
@@ -417,11 +421,11 @@ const availableYears = [...new Set(
               <div>
                 <label className="block text-sm font-medium mb-1">Bonus Amount</label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-1 text-gray-500">LKR</span>
                   <input
                     type="number"
                     value={bonus}
-                    onChange={(e) => setBonus(Number(e.target.value))}
+                    onChange={(e) => setBonus(e.target.value)}
                     className={`pl-8 w-full p-2 border rounded-lg ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
                   />
                 </div>
@@ -430,11 +434,11 @@ const availableYears = [...new Set(
               <div>
                 <label className="block text-sm font-medium mb-1">Leave Deduction</label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-1 text-gray-500">LKR</span>
                   <input
                     type="number"
                     value={leaveSalary}
-                    onChange={(e) => setLeaveSalary(Number(e.target.value))}
+                    onChange={(e) => setLeaveSalary(e.target.value)}
                     className={`pl-8 w-full p-2 border rounded-lg ${darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"}`}
                   />
                 </div>

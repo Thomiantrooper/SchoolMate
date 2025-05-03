@@ -291,11 +291,11 @@ export default function AdminStaff() {
                 <tr>
                   <th className="p-2 text-left">Name</th>
                   <th className="p-2 text-left">Personal Email</th>
-                  <th className="p-2 text-left">Age</th>
+                  {/* <th className="p-2 text-left">Age</th> */}
                   <th className="p-2 text-left">Gender</th>
                   <th className="p-2 text-left">Grade</th>
                   <th className="p-2 text-left">Section</th>
-                  <th className="p-2 text-left">Staff Email</th>
+                  {/* <th className="p-2 text-left">Staff Email</th> */}
                   <th className="p-2 text-left">Actions</th>
                 </tr>
               </thead>
@@ -304,11 +304,11 @@ export default function AdminStaff() {
                   <tr key={student._id} className="border-t">
                     <td className="p-2">{student.name}</td>
                     <td className="p-2">{student.personalEmail}</td>
-                    <td className="p-2">{student.age}</td>
+                    {/* <td className="p-2">{student.age}</td> */}
                     <td className="p-2">{student.gender}</td>
                     <td className="p-2">{student.grade}</td>
                     <td className="p-2">{student.section}</td>
-                    <td className="p-2">{student.studentEmail}</td>
+                    {/* <td className="p-2">{student.studentEmail}</td> */}
                     <td className="p-2">
                       <div className="flex space-x-2">
                         <Button size="xs" onClick={() => openEditModal(student)} disabled={isLoading}>
