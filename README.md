@@ -120,5 +120,6 @@ This project is developed for academic purposes and is subject to the guidelines
 
 ## Acknowledgements 
 
+- All team members who contributed to SchoolMate
 - SLIIT Faculty of Computing
 - Lecturers and Mentors who guided us through ITPM coursework
