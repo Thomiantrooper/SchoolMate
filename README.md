@@ -38,7 +38,8 @@ Built with a modern technology stack, SchoolMate ensures smooth management of bo
 - **Database:** MongoDB 
 - **Version Control:** GitHub 
 - **Code Quality Analysis:** SonarQube 
-- **Project Management:** Azure Boards 
+- **Project Management:** Jira Boards
+- **Testing:** Selenium IDE
 
 ---
 
@@ -120,6 +121,6 @@ This project is developed for academic purposes and is subject to the guidelines
 
 ## Acknowledgements 
 
-- All team members who contributed to SchoolMate
+- Gratitude to All the team members who contributed to SchoolMate
 - SLIIT Faculty of Computing
 - Lecturers and Mentors who guided us through ITPM coursework
